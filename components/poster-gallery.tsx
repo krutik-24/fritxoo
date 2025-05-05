@@ -1,11 +1,70 @@
 "use client"
 
 import { useState } from "react"
-import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import PosterCard from "./poster-card"
+
+// Updated to include imageData
+const POSTERS = [
+  {
+    id: "1",
+    title: "Cyberpunk City",
+    category: "Gaming",
+    price: 199,
+    imageData: null,
+  },
+  {
+    id: "2",
+    title: "Sunset Beach",
+    category: "Minimalist",
+    price: 249,
+    imageData: null,
+  },
+  {
+    id: "3",
+    title: "The Godfather",
+    category: "Movies",
+    price: 299,
+    imageData: null,
+  },
+  {
+    id: "4",
+    title: "Breaking Bad",
+    category: "TV Shows",
+    price: 199,
+    imageData: null,
+  },
+  {
+    id: "5",
+    title: "Stranger Things",
+    category: "TV Shows",
+    price: 249,
+    imageData: null,
+  },
+  {
+    id: "6",
+    title: "The Walking Dead",
+    category: "TV Shows",
+    price: 199,
+    imageData: null,
+  },
+  {
+    id: "7",
+    title: "Snoop Dogg",
+    category: "Music",
+    price: 199,
+    imageData: null,
+  },
+  {
+    id: "8",
+    title: "Porsche Racing",
+    category: "Sports",
+    price: 249,
+    imageData: null,
+  },
+]
 
 const POSTER_CATEGORIES = [
   "All",
@@ -21,71 +80,38 @@ const POSTER_CATEGORIES = [
 
 const POSTER_SIZES = ["12×18 inches", "16×24 inches", "18×24 inches", "24×36 inches", "Custom Size"]
 
-const POSTERS = [
-  {
-    id: 1,
-    title: "John Wick",
-    category: "Movies",
-    price: 199,
-    image: "/placeholder.svg?height=600&width=400",
-  },
-  {
-    id: 2,
-    title: "Blade Runner 2049",
-    category: "Movies",
-    price: 249,
-    image: "/placeholder.svg?height=600&width=400",
-  },
-  {
-    id: 3,
-    title: "The Godfather",
-    category: "Movies",
-    price: 299,
-    image: "/placeholder.svg?height=600&width=400",
-  },
-  {
-    id: 4,
-    title: "Breaking Bad",
-    category: "TV Shows",
-    price: 199,
-    image: "/placeholder.svg?height=600&width=400",
-  },
-  {
-    id: 5,
-    title: "Stranger Things",
-    category: "TV Shows",
-    price: 249,
-    image: "/placeholder.svg?height=600&width=400",
-  },
-  {
-    id: 6,
-    title: "The Walking Dead",
-    category: "TV Shows",
-    price: 199,
-    image: "/placeholder.svg?height=600&width=400",
-  },
-  {
-    id: 7,
-    title: "Snoop Dogg",
-    category: "Music",
-    price: 199,
-    image: "/placeholder.svg?height=600&width=400",
-  },
-  {
-    id: 8,
-    title: "Porsche Racing",
-    category: "Sports",
-    price: 249,
-    image: "/placeholder.svg?height=600&width=400",
-  },
-]
-
 export default function PosterGallery() {
   const [selectedCategory, setSelectedCategory] = useState("All")
   const [selectedSize, setSelectedSize] = useState(POSTER_SIZES[0])
+  const [posters, setPosters] = useState(POSTERS)
+  const [isLoading, setIsLoading] = useState(false)
 
   const filteredPosters =
-    selectedCategory === "All" ? POSTERS : POSTERS.filter((poster) => poster.category === selectedCategory)
+    selectedCategory === "All" ? posters : posters.filter((poster) => poster.category === selectedCategory)
+
+  // This would be replaced with actual API calls in a real application
+  const generateImagesForPosters = async () => {
+    setIsLoading(true)
+
+    try {
+      // In a real app, you would fetch from your API
+      // For demo purposes, we'll just simulate a delay
+      await new Promise((resolve) => setTimeout(resolve, 2000))
+
+      // Simulate having generated images for all posters
+      setPosters((prev) =>
+        prev.map((poster) => ({
+          ...poster,
+          // In a real app, this would be actual image data from your API
+          imageData: null,
+        })),
+      )
+    } catch (error) {
+      console.error("Error generating images:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <section className="py-16 bg-gray-50">
@@ -126,27 +152,14 @@ export default function PosterGallery() {
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredPosters.map((poster) => (
-            <Card key={poster.id} className="overflow-hidden border-none shadow-lg hover:shadow-xl transition-shadow">
-              <CardContent className="p-0">
-                <div className="relative">
-                  <Image
-                    src={poster.image || "/placeholder.svg"}
-                    alt={poster.title}
-                    width={400}
-                    height={600}
-                    className="w-full h-auto object-cover aspect-[2/3]"
-                  />
-                  <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-all flex items-center justify-center opacity-0 hover:opacity-100">
-                    <Button className="bg-white text-black hover:bg-gray-200">Quick View</Button>
-                  </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="font-semibold text-lg mb-1">{poster.title}</h3>
-                  <p className="text-gray-600 mb-2">{poster.category}</p>
-                  <p className="font-bold">Rs. {poster.price}</p>
-                </div>
-              </CardContent>
-            </Card>
+            <PosterCard
+              key={poster.id}
+              id={poster.id}
+              title={poster.title}
+              category={poster.category}
+              price={poster.price}
+              imageData={poster.imageData}
+            />
           ))}
         </div>
 

@@ -6,9 +6,11 @@ import { Search, User, ShoppingBag, ChevronDown, Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Logo from "./logo"
+import { useCart } from "@/context/cart-context"
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
+  const { itemCount } = useCart()
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white border-b shadow-sm">
@@ -28,6 +30,9 @@ export default function Navbar() {
                 <Link href="/category/tv-shows" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                   TV Shows
                 </Link>
+                <Link href="/category/cars" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  Cars
+                </Link>
                 <Link href="/category/music" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                   Music
                 </Link>
@@ -42,6 +47,9 @@ export default function Navbar() {
           </Link>
           <Link href="/custom-posters" className="text-sm font-medium text-gray-700 hover:text-black">
             Custom Posters
+          </Link>
+          <Link href="/ai-posters" className="text-sm font-medium text-gray-700 hover:text-black">
+            Generate Your Posters with AI
           </Link>
           <Link href="/wall-collage" className="text-sm font-medium text-gray-700 hover:text-black">
             Wall Collage Kit
@@ -68,9 +76,16 @@ export default function Navbar() {
           <Button variant="ghost" size="icon" className="text-gray-700">
             <User className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon" className="text-gray-700">
-            <ShoppingBag className="h-5 w-5" />
-          </Button>
+          <Link href="/cart">
+            <Button variant="ghost" size="icon" className="text-gray-700 relative">
+              <ShoppingBag className="h-5 w-5" />
+              {itemCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {itemCount}
+                </span>
+              )}
+            </Button>
+          </Link>
           <Button className="md:hidden" variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)}>
             {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </Button>
@@ -92,6 +107,9 @@ export default function Navbar() {
             </Link>
             <Link href="/custom-posters" className="text-sm font-medium text-gray-700 hover:text-black">
               Custom Posters
+            </Link>
+            <Link href="/ai-posters" className="text-sm font-medium text-gray-700 hover:text-black">
+              Generate Your Posters with AI
             </Link>
             <Link href="/wall-collage" className="text-sm font-medium text-gray-700 hover:text-black">
               Wall Collage Kit

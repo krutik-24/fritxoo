@@ -7,7 +7,7 @@ export default function HeroSection() {
       <div
         className="absolute inset-0 bg-cover bg-center opacity-50"
         style={{
-          backgroundImage: "url('/placeholder.svg?height=800&width=1600')",
+          backgroundImage: "url('/images/poster-wall-background.jpg')",
           backgroundPosition: "center",
         }}
       />

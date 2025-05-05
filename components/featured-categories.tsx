@@ -13,6 +13,11 @@ const categories = [
     link: "/category/tv-shows",
   },
   {
+    name: "Car Posters",
+    image: "/placeholder.svg?height=300&width=200",
+    link: "/category/cars",
+  },
+  {
     name: "Music Posters",
     image: "/placeholder.svg?height=300&width=200",
     link: "/category/music",
@@ -29,7 +34,7 @@ export default function FeaturedCategories() {
     <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold text-center mb-12">Featured Categories</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {categories.map((category, index) => (
             <Link key={index} href={category.link} className="group">
               <div className="relative overflow-hidden rounded-lg">
