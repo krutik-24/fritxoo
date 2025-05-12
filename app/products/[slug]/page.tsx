@@ -24,7 +24,7 @@ const SAMPLE_PRODUCTS = {
     id: "cyberpunk-city",
     title: "Cyberpunk City",
     category: "Gaming",
-    price: 199,
+    price: 99,
     imageData: null,
   },
   "sunset-beach": {

@@ -5,9 +5,9 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 
 const promos = [
   "✨ FREE DELIVERY FOR PREPAID ORDERS!",
-  "SPLIT POSTERS BUY 1 GET 1 FREE",
-  "SPLIT POSTERS BUY 2 GET 3 FREE",
-  "SPLIT POSTERS BUY 3 GET 5 FREE",
+  "BUY 4 GET 2 FREE",
+  "BUY 6 GET 3 FREE",
+  "BUY 8 GET 4 FREE",
 ]
 
 export default function PromoBar() {

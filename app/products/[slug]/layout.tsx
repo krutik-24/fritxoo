@@ -8,7 +8,7 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
-    title: `Unknown | 3 Piece Set - Fritxoo`,
+    title: ` 3 Piece Set - Fritxoo`,
     description: "High-quality 3 piece poster set. Transform your space with our personalized posters.",
   }
 }
