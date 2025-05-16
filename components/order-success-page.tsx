@@ -114,7 +114,7 @@ function OrderSuccessContent() {
   )
 }
 
-export default function ClientOrderSuccess() {
+export default function OrderSuccessPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />

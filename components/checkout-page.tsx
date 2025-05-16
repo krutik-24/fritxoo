@@ -13,16 +13,17 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ArrowLeft, Loader2, CreditCard, Smartphone } from "lucide-react"
+import { ArrowLeft, Loader2, CreditCard, Smartphone, AlertCircle } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import Link from "next/link"
 import Script from "next/script"
-import { useToast } from "@/hooks/use-toast"
+import Image from "next/image"
 
 // Minimum order value
 const MINIMUM_ORDER_VALUE = 259
 
 // Razorpay key ID
-const RAZORPAY_KEY_ID = "rzp_test_ZK7QSFZhRAIfV5"
+const RAZORPAY_KEY_ID = "rzp_live_BV1EVSSIhJdOpz"
 
 // Define the Razorpay interface
 declare global {
@@ -71,14 +72,15 @@ const INDIAN_STATES = [
   "Puducherry",
 ]
 
-export default function ClientCheckoutRazorpay() {
+export default function CheckoutPage() {
   const { items, subtotal, clearCart } = useCart()
   const router = useRouter()
-  const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [isRazorpayReady, setIsRazorpayReady] = useState(false)
+  const [scriptError, setScriptError] = useState(false)
   const [preferredPaymentMethod, setPreferredPaymentMethod] = useState<string>("upi")
   const [saveInfo, setSaveInfo] = useState(false)
+  const [formError, setFormError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -192,18 +194,20 @@ export default function ClientCheckoutRazorpay() {
             customerName: formData.name,
             customerEmail: formData.email,
             customerPhone: formData.phone,
-            shippingAddress: `${formData.address}${formData.apartment ? ", " + formData.apartment : ""}, ${formData.city}, ${formData.state}, ${formData.pincode}`,
+            shippingAddress: `${formData.address}${formData.apartment ? ", " + formData.apartment : ""}, ${
+              formData.city
+            }, ${formData.state}, ${formData.pincode}`,
             orderNotes: formData.notes || "No special instructions",
           },
         }),
       })
 
-      const data = await response.json()
-
       if (!response.ok) {
-        throw new Error(data.error || "Failed to create order")
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Failed to create order")
       }
 
+      const data = await response.json()
       return data.order
     } catch (error) {
       console.error("Error creating Razorpay order:", error)
@@ -212,6 +216,8 @@ export default function ClientCheckoutRazorpay() {
   }
 
   const handlePayment = async () => {
+    setFormError(null)
+
     if (!validateForm()) {
       // Scroll to the first error
       const firstErrorField = Object.keys(errors)[0]
@@ -223,11 +229,12 @@ export default function ClientCheckoutRazorpay() {
     }
 
     if (!isRazorpayReady) {
-      toast({
-        title: "Payment gateway is loading",
-        description: "Please wait a moment and try again",
-        variant: "destructive",
-      })
+      setFormError("Payment gateway is still loading. Please try again in a moment.")
+      return
+    }
+
+    if (scriptError) {
+      setFormError("Failed to load payment gateway. Please refresh the page and try again.")
       return
     }
 
@@ -256,7 +263,9 @@ export default function ClientCheckoutRazorpay() {
           contact: formData.phone,
         },
         notes: {
-          address: `${formData.address}${formData.apartment ? ", " + formData.apartment : ""}, ${formData.city}, ${formData.state}, ${formData.pincode}`,
+          address: `${formData.address}${formData.apartment ? ", " + formData.apartment : ""}, ${formData.city}, ${
+            formData.state
+          }, ${formData.pincode}`,
           orderNotes: formData.notes || "No special instructions",
         },
         theme: {
@@ -284,7 +293,9 @@ export default function ClientCheckoutRazorpay() {
                   name: formData.name,
                   email: formData.email,
                   phone: formData.phone,
-                  address: `${formData.address}${formData.apartment ? ", " + formData.apartment : ""}, ${formData.city}, ${formData.state}, ${formData.pincode}`,
+                  address: `${formData.address}${formData.apartment ? ", " + formData.apartment : ""}, ${
+                    formData.city
+                  }, ${formData.state}, ${formData.pincode}`,
                   notes: formData.notes,
                 },
               }),
@@ -299,43 +310,32 @@ export default function ClientCheckoutRazorpay() {
                 `/checkout/success?razorpay_order_id=${response.razorpay_order_id}&razorpay_payment_id=${response.razorpay_payment_id}`,
               )
             } else {
-              toast({
-                title: "Payment verification failed",
-                description: "Please try again or contact support",
-                variant: "destructive",
-              })
+              setFormError("Payment verification failed. Please try again or contact support.")
               setIsLoading(false)
             }
           } catch (error) {
             console.error("Error verifying payment:", error)
-            toast({
-              title: "Payment verification error",
-              description: "An error occurred while verifying your payment. Please contact support.",
-              variant: "destructive",
-            })
+            setFormError("An error occurred while verifying your payment. Please contact support.")
             setIsLoading(false)
           }
         },
         modal: {
           ondismiss: () => {
-            toast({
-              title: "Payment cancelled",
-              description: "You cancelled the payment process. Your cart items are still saved.",
-            })
+            setFormError("Payment cancelled. Your cart items are still saved.")
             setIsLoading(false)
           },
         },
       }
 
       const razorpay = new window.Razorpay(options)
+      razorpay.on("payment.failed", (response: any) => {
+        setFormError(`Payment failed: ${response.error.description}`)
+        setIsLoading(false)
+      })
       razorpay.open()
     } catch (error) {
       console.error("Error during checkout:", error)
-      toast({
-        title: "Checkout error",
-        description: "An error occurred during checkout. Please try again.",
-        variant: "destructive",
-      })
+      setFormError("An error occurred during checkout. Please try again.")
       setIsLoading(false)
     }
   }
@@ -350,11 +350,8 @@ export default function ClientCheckoutRazorpay() {
         src="https://checkout.razorpay.com/v1/checkout.js"
         onLoad={() => setIsRazorpayReady(true)}
         onError={() => {
-          toast({
-            title: "Payment gateway error",
-            description: "Failed to load payment gateway. Please refresh the page.",
-            variant: "destructive",
-          })
+          setScriptError(true)
+          setFormError("Failed to load payment gateway. Please refresh the page and try again.")
         }}
       />
 
@@ -376,6 +373,13 @@ export default function ClientCheckoutRazorpay() {
               </Button>
             </Link>
           </div>
+
+          {formError && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{formError}</AlertDescription>
+            </Alert>
+          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
@@ -587,7 +591,7 @@ export default function ClientCheckoutRazorpay() {
                     <Button
                       className="w-full bg-black text-white hover:bg-gray-800"
                       onClick={handlePayment}
-                      disabled={isLoading || !isRazorpayReady}
+                      disabled={isLoading}
                     >
                       {isLoading ? (
                         <>
@@ -618,10 +622,11 @@ export default function ClientCheckoutRazorpay() {
                       <div key={item.id} className="flex gap-3">
                         <div className="w-16 h-20 bg-gray-100 rounded-md relative flex-shrink-0">
                           {item.imageData ? (
-                            <img
+                            <Image
                               src={`data:image/png;base64,${item.imageData}`}
                               alt={item.title}
-                              className="object-cover rounded-md w-full h-full"
+                              fill
+                              className="object-cover rounded-md"
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center bg-gray-200 rounded-md">

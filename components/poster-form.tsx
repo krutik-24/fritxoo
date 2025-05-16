@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import ImageGenerator from "./image-generator"
+import ImageSelector from "./admin/image-selector"
 
 interface PosterFormProps {
   onSubmit: (posterData: PosterData) => void
@@ -21,6 +21,7 @@ export interface PosterData {
   price: number
   description: string
   imageData?: string
+  imageUrl?: string
 }
 
 const CATEGORIES = ["Movies", "TV Shows", "Music", "Sports", "Anime", "Gaming", "Minimalist", "Typography"]
@@ -61,6 +62,7 @@ export default function PosterForm({ onSubmit, initialData }: PosterFormProps) {
     onSubmit({
       ...formData,
       imageData,
+      imageUrl: formData.imageUrl,
     })
   }
 
@@ -120,7 +122,20 @@ export default function PosterForm({ onSubmit, initialData }: PosterFormProps) {
         />
       </div>
 
-      <ImageGenerator title={formData.title} onImageGenerated={handleImageGenerated} />
+      <div className="space-y-2">
+        <Label>Poster Image</Label>
+        <ImageSelector
+          onSelect={(image) => {
+            setImageData(undefined) // Clear any AI-generated image
+            setFormData((prev) => ({
+              ...prev,
+              imageUrl: image.url,
+            }))
+          }}
+          selectedImageId={formData.imageUrl ? formData.imageUrl : undefined}
+          buttonLabel="Select Poster Image"
+        />
+      </div>
 
       <Button type="submit" className="w-full" disabled={!formData.title || !formData.category || !imageData}>
         {initialData ? "Update Poster" : "Create Poster"}

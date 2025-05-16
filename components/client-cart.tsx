@@ -12,14 +12,14 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import Image from "next/image"
 import Link from "next/link"
 
+// Minimum order value
+const MINIMUM_ORDER_VALUE = 259
+
 export default function ClientCart() {
   const { items, removeItem, updateQuantity, subtotal, itemCount } = useCart()
   const [couponCode, setCouponCode] = useState("")
   const [couponError, setCouponError] = useState<string | null>(null)
   const router = useRouter()
-
-  // Minimum order value
-  const MINIMUM_ORDER_VALUE = 259
 
   // Shipping cost calculation (free above Rs. 499)
   const shippingCost = subtotal >= 499 ? 0 : 49

@@ -21,7 +21,7 @@ export default function AdminLayout({
 
       <div className="container mx-auto px-4 py-4">
         <Tabs defaultValue="posters" className="mb-6">
-          <TabsList className="grid grid-cols-4 w-full max-w-md">
+          <TabsList className="grid grid-cols-5 w-full max-w-md">
             <Link href="/admin/dashboard" passHref legacyBehavior>
               <TabsTrigger value="dashboard" asChild>
                 <a>Dashboard</a>
@@ -30,6 +30,11 @@ export default function AdminLayout({
             <Link href="/admin/posters" passHref legacyBehavior>
               <TabsTrigger value="posters" asChild>
                 <a>Posters</a>
+              </TabsTrigger>
+            </Link>
+            <Link href="/admin/images" passHref legacyBehavior>
+              <TabsTrigger value="images" asChild>
+                <a>Images</a>
               </TabsTrigger>
             </Link>
             <Link href="/admin/orders" passHref legacyBehavior>

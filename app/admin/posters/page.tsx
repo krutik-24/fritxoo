@@ -5,6 +5,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Plus, Edit, Trash2 } from "lucide-react"
 import Image from "next/image"
+import { useToast } from "@/hooks/use-toast"
 
 // Mock data for demonstration
 const MOCK_POSTERS = [
@@ -29,10 +30,15 @@ const MOCK_POSTERS = [
 
 export default function PostersAdminPage() {
   const [posters, setPosters] = useState(MOCK_POSTERS)
+  const { toast } = useToast()
 
   const handleDelete = (id: string) => {
     if (confirm("Are you sure you want to delete this poster?")) {
       setPosters(posters.filter((poster) => poster.id !== id))
+      toast({
+        title: "Poster deleted",
+        description: "The poster has been deleted successfully.",
+      })
     }
   }
 
@@ -40,12 +46,19 @@ export default function PostersAdminPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Manage Posters</h1>
-        <Link href="/admin/posters/new">
-          <Button className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            Add New Poster
-          </Button>
-        </Link>
+        <div className="flex gap-2">
+          <Link href="/admin/posters/new">
+            <Button className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              Add New Poster
+            </Button>
+          </Link>
+          <Link href="/admin/posters/manage">
+            <Button variant="outline" className="flex items-center gap-2">
+              Advanced Management
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">

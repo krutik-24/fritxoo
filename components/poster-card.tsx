@@ -15,10 +15,11 @@ interface PosterCardProps {
   category: string
   price: number
   imageData?: string | null
+  imageUrl?: string
   slug?: string
 }
 
-export default function PosterCard({ id, title, category, price, imageData, slug = id }: PosterCardProps) {
+export default function PosterCard({ id, title, category, price, imageData, imageUrl, slug = id }: PosterCardProps) {
   const { addItem } = useCart()
   const [isHovered, setIsHovered] = useState(false)
 
@@ -47,6 +48,8 @@ export default function PosterCard({ id, title, category, price, imageData, slug
           <div className="aspect-[2/3] relative">
             {imageData ? (
               <Image src={`data:image/png;base64,${imageData}`} alt={title} fill className="object-cover" />
+            ) : imageUrl ? (
+              <Image src={imageUrl || "/placeholder.svg"} alt={title} fill className="object-cover" />
             ) : (
               <Image src="/placeholder.svg?height=600&width=400" alt={title} fill className="object-cover" />
             )}

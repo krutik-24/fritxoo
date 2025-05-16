@@ -1,10 +1,5 @@
-import { ClientProviders } from "@/components/client-providers"
-import ClientCheckoutRazorpay from "@/components/client-checkout-razorpay"
+import CheckoutPage from "@/components/checkout-page"
 
-export default function CheckoutPage() {
-  return (
-    <ClientProviders>
-      <ClientCheckoutRazorpay />
-    </ClientProviders>
-  )
+export default function Checkout() {
+  return <CheckoutPage />
 }

@@ -48,9 +48,6 @@ export default function Navbar() {
           <Link href="/custom-posters" className="text-sm font-medium text-gray-700 hover:text-black">
             Custom Posters
           </Link>
-          <Link href="/ai-posters" className="text-sm font-medium text-gray-700 hover:text-black">
-            Generate Your Posters with AI
-          </Link>
           <Link href="/wall-collage" className="text-sm font-medium text-gray-700 hover:text-black">
             Wall Collage Kit
           </Link>
@@ -107,9 +104,6 @@ export default function Navbar() {
             </Link>
             <Link href="/custom-posters" className="text-sm font-medium text-gray-700 hover:text-black">
               Custom Posters
-            </Link>
-            <Link href="/ai-posters" className="text-sm font-medium text-gray-700 hover:text-black">
-              Generate Your Posters with AI
             </Link>
             <Link href="/wall-collage" className="text-sm font-medium text-gray-700 hover:text-black">
               Wall Collage Kit
