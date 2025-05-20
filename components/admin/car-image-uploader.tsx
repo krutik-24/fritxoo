@@ -9,36 +9,21 @@ import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import Image from "next/image"
-import { Upload, X, AlertCircle, Check } from "lucide-react"
+import { X, AlertCircle, Check, Car } from "lucide-react"
 
-interface ImageUploaderProps {
+interface CarImageUploaderProps {
   onUploadComplete: (imageData: {
     url: string
     title: string
     description: string
     altText: string
-    category: string
     filename: string
   }) => void
-  defaultCategory?: string
 }
 
-const CATEGORIES = [
-  { value: "general", label: "General" },
-  { value: "cars", label: "Cars" },
-  { value: "movies", label: "Movies" },
-  { value: "music", label: "Music" },
-  { value: "sports", label: "Sports" },
-  { value: "anime", label: "Anime" },
-  { value: "gaming", label: "Gaming" },
-  { value: "minimalist", label: "Minimalist" },
-  { value: "typography", label: "Typography" },
-]
-
-export default function ImageUploader({ onUploadComplete, defaultCategory = "general" }: ImageUploaderProps) {
+export default function CarImageUploader({ onUploadComplete }: CarImageUploaderProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
@@ -47,7 +32,6 @@ export default function ImageUploader({ onUploadComplete, defaultCategory = "gen
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [altText, setAltText] = useState("")
-  const [category, setCategory] = useState(defaultCategory)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
 
@@ -69,11 +53,14 @@ export default function ImageUploader({ onUploadComplete, defaultCategory = "gen
         .join(" ")
         .trim()
 
-      setTitle(formattedName)
-      setAltText(formattedName)
+      // If the filename starts with "car" or "cars", remove it
+      const finalName = formattedName.replace(/^Car\s+/i, "").replace(/^Cars\s+/i, "")
+
+      setTitle(finalName)
+      setAltText(`${finalName} car poster`)
 
       // Auto-generate a simple description
-      setDescription(`Image of ${formattedName.toLowerCase()}.`)
+      setDescription(`High-quality poster of the ${finalName} car.`)
     }
   }, [selectedFile])
 
@@ -177,14 +164,11 @@ export default function ImageUploader({ onUploadComplete, defaultCategory = "gen
         })
       }, 300)
 
-      // Upload to blob storage
-      const response = await fetch(
-        `/api/upload-image?filename=${encodeURIComponent(selectedFile.name)}&category=${encodeURIComponent(category)}`,
-        {
-          method: "POST",
-          body: selectedFile,
-        },
-      )
+      // Upload to blob storage using the car-specific API route
+      const response = await fetch(`/api/upload-car-image?filename=${encodeURIComponent(selectedFile.name)}`, {
+        method: "POST",
+        body: selectedFile,
+      })
 
       clearInterval(progressInterval)
 
@@ -199,7 +183,7 @@ export default function ImageUploader({ onUploadComplete, defaultCategory = "gen
 
       toast({
         title: "Upload successful",
-        description: "Image has been uploaded to blob storage",
+        description: "Car image has been uploaded to blob storage",
       })
 
       // Pass the uploaded image data back to the parent component
@@ -208,7 +192,6 @@ export default function ImageUploader({ onUploadComplete, defaultCategory = "gen
         title,
         description,
         altText,
-        category,
         filename: selectedFile.name,
       })
 
@@ -254,11 +237,11 @@ export default function ImageUploader({ onUploadComplete, defaultCategory = "gen
           />
           <label htmlFor="file-upload" className="cursor-pointer">
             <div className="flex flex-col items-center">
-              <Upload className="h-12 w-12 text-gray-400 mb-4" />
-              <p className="text-gray-600 mb-2">Drag and drop your image here or click to browse</p>
+              <Car className="h-12 w-12 text-gray-400 mb-4" />
+              <p className="text-gray-600 mb-2">Drag and drop your car image here or click to browse</p>
               <p className="text-gray-400 text-sm mb-4">Supports JPG, PNG, WebP, GIF (Max 5MB)</p>
               <Button type="button" disabled={uploading}>
-                Select Image
+                Select Car Image
               </Button>
             </div>
           </label>
@@ -282,35 +265,18 @@ export default function ImageUploader({ onUploadComplete, defaultCategory = "gen
 
           <div className="space-y-4">
             <div>
-              <Label htmlFor="category">
-                Category <span className="text-red-500">*</span>
-              </Label>
-              <Select value={category} onValueChange={setCategory} disabled={uploading}>
-                <SelectTrigger id="category">
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES.map((cat) => (
-                    <SelectItem key={cat.value} value={cat.value}>
-                      {cat.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
               <Label htmlFor="title">
-                Title <span className="text-red-500">*</span>
+                Car Title <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Enter image title"
+                placeholder="Enter car model and make"
                 disabled={uploading}
                 required
               />
+              <p className="text-xs text-gray-500 mt-1">Example: "Ferrari F40" or "Classic Mustang GT"</p>
             </div>
 
             <div>
@@ -323,6 +289,9 @@ export default function ImageUploader({ onUploadComplete, defaultCategory = "gen
                 disabled={uploading}
                 rows={3}
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Describe the car, its features, or any notable aspects of this image
+              </p>
             </div>
 
             <div>
@@ -352,7 +321,7 @@ export default function ImageUploader({ onUploadComplete, defaultCategory = "gen
                   "Uploading..."
                 ) : (
                   <>
-                    <Check className="h-4 w-4" /> Upload to Blob Storage
+                    <Check className="h-4 w-4" /> Upload to Cars Category
                   </>
                 )}
               </Button>

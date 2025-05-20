@@ -20,11 +20,11 @@ export interface PosterData {
   category: string
   price: number
   description: string
-  imageData?: string
   imageUrl?: string
+  altText?: string
 }
 
-const CATEGORIES = ["Movies", "TV Shows", "Music", "Sports", "Anime", "Gaming", "Minimalist", "Typography"]
+const CATEGORIES = ["Movies", "TV Shows", "Music", "Sports", "Anime", "Gaming", "Minimalist", "Typography", "Cars"]
 
 export default function PosterForm({ onSubmit, initialData }: PosterFormProps) {
   const [formData, setFormData] = useState<PosterData>(
@@ -36,7 +36,25 @@ export default function PosterForm({ onSubmit, initialData }: PosterFormProps) {
     },
   )
 
-  const [imageData, setImageData] = useState<string | undefined>(initialData?.imageData)
+  // Set default category filter based on selected category
+  const getDefaultCategoryFilter = () => {
+    if (!formData.category) return "all"
+
+    // Map poster categories to image categories
+    const categoryMap: Record<string, string> = {
+      Movies: "movies",
+      "TV Shows": "movies", // TV Shows can use movie images
+      Music: "music",
+      Sports: "sports",
+      Anime: "anime",
+      Gaming: "gaming",
+      Minimalist: "minimalist",
+      Typography: "typography",
+      Cars: "cars",
+    }
+
+    return categoryMap[formData.category] || "all"
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -53,17 +71,9 @@ export default function PosterForm({ onSubmit, initialData }: PosterFormProps) {
     }))
   }
 
-  const handleImageGenerated = (generatedImageData: string) => {
-    setImageData(generatedImageData)
-  }
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSubmit({
-      ...formData,
-      imageData,
-      imageUrl: formData.imageUrl,
-    })
+    onSubmit(formData)
   }
 
   return (
@@ -126,18 +136,19 @@ export default function PosterForm({ onSubmit, initialData }: PosterFormProps) {
         <Label>Poster Image</Label>
         <ImageSelector
           onSelect={(image) => {
-            setImageData(undefined) // Clear any AI-generated image
             setFormData((prev) => ({
               ...prev,
               imageUrl: image.url,
+              altText: image.altText,
             }))
           }}
-          selectedImageId={formData.imageUrl ? formData.imageUrl : undefined}
+          selectedImageUrl={formData.imageUrl}
           buttonLabel="Select Poster Image"
+          defaultCategory={getDefaultCategoryFilter()}
         />
       </div>
 
-      <Button type="submit" className="w-full" disabled={!formData.title || !formData.category || !imageData}>
+      <Button type="submit" className="w-full" disabled={!formData.title || !formData.category || !formData.imageUrl}>
         {initialData ? "Update Poster" : "Create Poster"}
       </Button>
     </form>

@@ -63,6 +63,9 @@ export default function Navbar() {
           <Link href="/support" className="text-sm font-medium text-gray-700 hover:text-black">
             Support
           </Link>
+          <Link href="/admin-login" className="text-sm font-medium text-gray-700 hover:text-black">
+            Admin
+          </Link>
         </nav>
 
         <div className="flex items-center space-x-4">
@@ -119,6 +122,9 @@ export default function Navbar() {
             </Link>
             <Link href="/support" className="text-sm font-medium text-gray-700 hover:text-black">
               Support
+            </Link>
+            <Link href="/admin-login" className="text-sm font-medium text-gray-700 hover:text-black">
+              Admin
             </Link>
           </nav>
         </div>

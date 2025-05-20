@@ -16,31 +16,164 @@ const CATEGORIES = {
   gaming: { name: "Gaming", description: "Video game art and characters" },
   minimalist: { name: "Minimalist", description: "Clean, simple designs with a modern aesthetic" },
   typography: { name: "Typography", description: "Beautiful text and lettering designs" },
+  cars: { name: "Cars", description: "Stunning automotive designs and classic cars" },
 }
 
 // Sample posters organized by category slug
 const POSTERS_BY_SLUG = {
   movies: [
-    { id: "m1", title: "The Godfather", category: "Movies", price: 299, imageData: null },
-    { id: "m2", title: "Pulp Fiction", category: "Movies", price: 249, imageData: null },
-    { id: "m3", title: "Inception", category: "Movies", price: 199, imageData: null },
-    { id: "m4", title: "The Dark Knight", category: "Movies", price: 279, imageData: null },
-    { id: "m5", title: "Interstellar", category: "Movies", price: 249, imageData: null },
-    { id: "m6", title: "The Shawshank Redemption", category: "Movies", price: 299, imageData: null },
-    { id: "m7", title: "Fight Club", category: "Movies", price: 249, imageData: null },
-    { id: "m8", title: "The Matrix", category: "Movies", price: 249, imageData: null },
+    {
+      id: "m1",
+      title: "The Godfather",
+      category: "Movies",
+      price: 299,
+      imageUrl: "/images/godfather.jpg",
+      slug: "the-godfather",
+    },
+    {
+      id: "m2",
+      title: "Pulp Fiction",
+      category: "Movies",
+      price: 249,
+      imageUrl: "/images/pulp-fiction.jpg",
+      slug: "pulp-fiction",
+    },
+    {
+      id: "m3",
+      title: "Inception",
+      category: "Movies",
+      price: 199,
+      imageUrl: "/images/inception.jpg",
+      slug: "inception",
+    },
+    {
+      id: "m4",
+      title: "The Dark Knight",
+      category: "Movies",
+      price: 279,
+      imageUrl: "/images/dark-knight.jpg",
+      slug: "the-dark-knight",
+    },
+    {
+      id: "m5",
+      title: "Interstellar",
+      category: "Movies",
+      price: 249,
+      imageUrl: "/images/interstellar.jpg",
+      slug: "interstellar",
+    },
+    {
+      id: "m6",
+      title: "The Shawshank Redemption",
+      category: "Movies",
+      price: 299,
+      imageUrl: "/images/shawshank.jpg",
+      slug: "shawshank-redemption",
+    },
+    {
+      id: "m7",
+      title: "Fight Club",
+      category: "Movies",
+      price: 249,
+      imageUrl: "/images/fight-club.jpg",
+      slug: "fight-club",
+    },
+    {
+      id: "m8",
+      title: "The Matrix",
+      category: "Movies",
+      price: 249,
+      imageUrl: "/images/matrix.jpg",
+      slug: "the-matrix",
+    },
   ],
   "tv-shows": [
-    { id: "tv1", title: "Breaking Bad", category: "TV Shows", price: 199, imageData: null },
-    { id: "tv2", title: "Stranger Things", category: "TV Shows", price: 249, imageData: null },
-    { id: "tv3", title: "The Walking Dead", category: "TV Shows", price: 199, imageData: null },
-    { id: "tv4", title: "Game of Thrones", category: "TV Shows", price: 299, imageData: null },
-    { id: "tv5", title: "Friends", category: "TV Shows", price: 199, imageData: null },
-    { id: "tv6", title: "The Office", category: "TV Shows", price: 199, imageData: null },
-    { id: "tv7", title: "Peaky Blinders", category: "TV Shows", price: 249, imageData: null },
-    { id: "tv8", title: "Money Heist", category: "TV Shows", price: 249, imageData: null },
+    {
+      id: "tv1",
+      title: "Breaking Bad",
+      category: "TV Shows",
+      price: 199,
+      imageUrl: "/images/breaking-bad.jpg",
+      slug: "breaking-bad",
+    },
+    {
+      id: "tv2",
+      title: "Stranger Things",
+      category: "TV Shows",
+      price: 249,
+      imageUrl: "/images/stranger-things.jpg",
+      slug: "stranger-things",
+    },
+    {
+      id: "tv3",
+      title: "The Walking Dead",
+      category: "TV Shows",
+      price: 199,
+      imageUrl: "/images/walking-dead.jpg",
+      slug: "the-walking-dead",
+    },
+    {
+      id: "tv4",
+      title: "Game of Thrones",
+      category: "TV Shows",
+      price: 299,
+      imageUrl: "/images/game-of-thrones.jpg",
+      slug: "game-of-thrones",
+    },
+    { id: "tv5", title: "Friends", category: "TV Shows", price: 199, imageUrl: "/images/friends.jpg", slug: "friends" },
+    {
+      id: "tv6",
+      title: "The Office",
+      category: "TV Shows",
+      price: 199,
+      imageUrl: "/images/the-office.jpg",
+      slug: "the-office",
+    },
+    {
+      id: "tv7",
+      title: "Peaky Blinders",
+      category: "TV Shows",
+      price: 249,
+      imageUrl: "/images/peaky-blinders.jpg",
+      slug: "peaky-blinders",
+    },
+    {
+      id: "tv8",
+      title: "Money Heist",
+      category: "TV Shows",
+      price: 249,
+      imageUrl: "/images/money-heist.jpg",
+      slug: "money-heist",
+    },
+  ],
+  cars: [
+    {
+      id: "c1",
+      title: "Ferrari 250 GTO",
+      category: "Cars",
+      price: 299,
+      imageUrl: "/images/ferrari-250-gto.png",
+      slug: "ferrari-250-gto",
+    },
+    // Other car posters would be defined here
   ],
   // Other categories would be defined similarly
+}
+
+// Function to map admin category names to URL slugs
+function getCategorySlug(categoryName: string): string {
+  const categoryMap: Record<string, string> = {
+    Movies: "movies",
+    "TV Shows": "tv-shows",
+    Music: "music",
+    Sports: "sports",
+    Anime: "anime",
+    Gaming: "gaming",
+    Minimalist: "minimalist",
+    Typography: "typography",
+    Cars: "cars",
+  }
+  return categoryMap[categoryName] || categoryName.toLowerCase().replace(/\s+/g, "-")
 }
 
 export default function CategoryPage({ params }: { params: { slug: string } }) {
@@ -110,7 +243,8 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
                 title={poster.title}
                 category={poster.category}
                 price={poster.price}
-                imageData={poster.imageData}
+                imageUrl={poster.imageUrl}
+                slug={poster.slug}
               />
             ))}
           </div>

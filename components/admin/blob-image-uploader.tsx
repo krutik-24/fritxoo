@@ -2,43 +2,27 @@
 
 import type React from "react"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import Image from "next/image"
 import { Upload, X, AlertCircle, Check } from "lucide-react"
 
-interface ImageUploaderProps {
+interface BlobImageUploaderProps {
   onUploadComplete: (imageData: {
     url: string
     title: string
     description: string
     altText: string
-    category: string
-    filename: string
   }) => void
-  defaultCategory?: string
 }
 
-const CATEGORIES = [
-  { value: "general", label: "General" },
-  { value: "cars", label: "Cars" },
-  { value: "movies", label: "Movies" },
-  { value: "music", label: "Music" },
-  { value: "sports", label: "Sports" },
-  { value: "anime", label: "Anime" },
-  { value: "gaming", label: "Gaming" },
-  { value: "minimalist", label: "Minimalist" },
-  { value: "typography", label: "Typography" },
-]
-
-export default function ImageUploader({ onUploadComplete, defaultCategory = "general" }: ImageUploaderProps) {
+export default function BlobImageUploader({ onUploadComplete }: BlobImageUploaderProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
@@ -47,35 +31,8 @@ export default function ImageUploader({ onUploadComplete, defaultCategory = "gen
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [altText, setAltText] = useState("")
-  const [category, setCategory] = useState(defaultCategory)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
-
-  // Auto-generate title from filename
-  useEffect(() => {
-    if (selectedFile) {
-      // Extract base filename without extension
-      const baseName = selectedFile.name.split(".")[0]
-
-      // Format the filename to be more readable
-      // Replace underscores and hyphens with spaces
-      const formattedName = baseName
-        .replace(/[_-]/g, " ")
-        // Add spaces before capital letters (camelCase to spaces)
-        .replace(/([A-Z])/g, " $1")
-        // Capitalize first letter of each word
-        .split(" ")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ")
-        .trim()
-
-      setTitle(formattedName)
-      setAltText(formattedName)
-
-      // Auto-generate a simple description
-      setDescription(`Image of ${formattedName.toLowerCase()}.`)
-    }
-  }, [selectedFile])
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     setError(null)
@@ -104,6 +61,11 @@ export default function ImageUploader({ onUploadComplete, defaultCategory = "gen
       setPreview(reader.result as string)
     }
     reader.readAsDataURL(file)
+
+    // Set default title from filename
+    const fileName = file.name.split(".")[0].replace(/[_-]/g, " ")
+    setTitle(fileName)
+    setAltText(fileName)
   }
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -141,6 +103,11 @@ export default function ImageUploader({ onUploadComplete, defaultCategory = "gen
       setPreview(reader.result as string)
     }
     reader.readAsDataURL(file)
+
+    // Set default title from filename
+    const fileName = file.name.split(".")[0].replace(/[_-]/g, " ")
+    setTitle(fileName)
+    setAltText(fileName)
   }
 
   const clearSelection = () => {
@@ -177,14 +144,15 @@ export default function ImageUploader({ onUploadComplete, defaultCategory = "gen
         })
       }, 300)
 
+      // Create form data for the upload
+      const formData = new FormData()
+      formData.append("file", selectedFile)
+
       // Upload to blob storage
-      const response = await fetch(
-        `/api/upload-image?filename=${encodeURIComponent(selectedFile.name)}&category=${encodeURIComponent(category)}`,
-        {
-          method: "POST",
-          body: selectedFile,
-        },
-      )
+      const response = await fetch(`/api/upload-blob?filename=${encodeURIComponent(selectedFile.name)}`, {
+        method: "POST",
+        body: selectedFile,
+      })
 
       clearInterval(progressInterval)
 
@@ -208,8 +176,6 @@ export default function ImageUploader({ onUploadComplete, defaultCategory = "gen
         title,
         description,
         altText,
-        category,
-        filename: selectedFile.name,
       })
 
       // Clear the form after successful upload
@@ -281,24 +247,6 @@ export default function ImageUploader({ onUploadComplete, defaultCategory = "gen
           </div>
 
           <div className="space-y-4">
-            <div>
-              <Label htmlFor="category">
-                Category <span className="text-red-500">*</span>
-              </Label>
-              <Select value={category} onValueChange={setCategory} disabled={uploading}>
-                <SelectTrigger id="category">
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES.map((cat) => (
-                    <SelectItem key={cat.value} value={cat.value}>
-                      {cat.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
             <div>
               <Label htmlFor="title">
                 Title <span className="text-red-500">*</span>

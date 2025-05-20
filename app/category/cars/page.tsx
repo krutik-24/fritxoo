@@ -12,7 +12,7 @@ const CAR_POSTERS = [
   { id: "c2", title: "Porsche 911", category: "Cars", price: 249, imageData: null },
   { id: "c3", title: "Lamborghini Countach", category: "Cars", price: 299, imageData: null },
   { id: "c4", title: "Aston Martin DB5", category: "Cars", price: 249, imageData: null },
-  { id: "c5", title: "Skyline GT-R under Cherry Blossoms", category: "Cars", price: 199, imageData: "https://chatgpt.com/s/m_680686a9b114819183a8388b4237807b" },
+  { id: "c5", title: "Skyline GT-R under Cherry Blossoms", category: "Cars", price: 199, imageData: "https://zrezcgohvq3ety2s.public.blob.vercel-storage.com/cars/ChatGPT%20Image%20May%2015%2C%202025%2C%2012_34_42%20PM-sPbZpWyoxWe8dXwRrFcZupI3NgZw55.png" },
   { id: "c6", title: "BMW M3", category: "Cars", price: 199, imageData: null },
   { id: "c7", title: "Mercedes-Benz 300SL", category: "Cars", price: 299, imageData: null },
   { id: "c8", title: "Bugatti Chiron", category: "Cars", price: 249, imageData: null },

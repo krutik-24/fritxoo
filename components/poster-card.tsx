@@ -33,6 +33,7 @@ export default function PosterCard({ id, title, category, price, imageData, imag
       category,
       price,
       imageData,
+      imageUrl,
       size: "A4", // Default size
     })
   }
