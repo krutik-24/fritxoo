@@ -1,12 +1,17 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { useParams, useRouter } from "next/navigation"
+import { usePosters } from "@/context/poster-context"
+import PosterCard from "@/components/poster-card"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
-import PosterCard from "@/components/poster-card"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 
-// Sample data - in a real app, this would come from your database
+// Sample data for categories
 const CATEGORIES = {
   movies: { name: "Movies", description: "Iconic movie posters for film enthusiasts" },
   "tv-shows": { name: "TV Shows", description: "Posters featuring your favorite television series" },
@@ -19,149 +24,10 @@ const CATEGORIES = {
   cars: { name: "Cars", description: "Stunning automotive designs and classic cars" },
 }
 
-// Sample posters organized by category slug
-const POSTERS_BY_SLUG = {
-  movies: [
-    {
-      id: "m1",
-      title: "The Godfather",
-      category: "Movies",
-      price: 299,
-      imageUrl: "/images/godfather.jpg",
-      slug: "the-godfather",
-    },
-    {
-      id: "m2",
-      title: "Pulp Fiction",
-      category: "Movies",
-      price: 249,
-      imageUrl: "/images/pulp-fiction.jpg",
-      slug: "pulp-fiction",
-    },
-    {
-      id: "m3",
-      title: "Inception",
-      category: "Movies",
-      price: 199,
-      imageUrl: "/images/inception.jpg",
-      slug: "inception",
-    },
-    {
-      id: "m4",
-      title: "The Dark Knight",
-      category: "Movies",
-      price: 279,
-      imageUrl: "/images/dark-knight.jpg",
-      slug: "the-dark-knight",
-    },
-    {
-      id: "m5",
-      title: "Interstellar",
-      category: "Movies",
-      price: 249,
-      imageUrl: "/images/interstellar.jpg",
-      slug: "interstellar",
-    },
-    {
-      id: "m6",
-      title: "The Shawshank Redemption",
-      category: "Movies",
-      price: 299,
-      imageUrl: "/images/shawshank.jpg",
-      slug: "shawshank-redemption",
-    },
-    {
-      id: "m7",
-      title: "Fight Club",
-      category: "Movies",
-      price: 249,
-      imageUrl: "/images/fight-club.jpg",
-      slug: "fight-club",
-    },
-    {
-      id: "m8",
-      title: "The Matrix",
-      category: "Movies",
-      price: 249,
-      imageUrl: "/images/matrix.jpg",
-      slug: "the-matrix",
-    },
-  ],
-  "tv-shows": [
-    {
-      id: "tv1",
-      title: "Breaking Bad",
-      category: "TV Shows",
-      price: 199,
-      imageUrl: "/images/breaking-bad.jpg",
-      slug: "breaking-bad",
-    },
-    {
-      id: "tv2",
-      title: "Stranger Things",
-      category: "TV Shows",
-      price: 249,
-      imageUrl: "/images/stranger-things.jpg",
-      slug: "stranger-things",
-    },
-    {
-      id: "tv3",
-      title: "The Walking Dead",
-      category: "TV Shows",
-      price: 199,
-      imageUrl: "/images/walking-dead.jpg",
-      slug: "the-walking-dead",
-    },
-    {
-      id: "tv4",
-      title: "Game of Thrones",
-      category: "TV Shows",
-      price: 299,
-      imageUrl: "/images/game-of-thrones.jpg",
-      slug: "game-of-thrones",
-    },
-    { id: "tv5", title: "Friends", category: "TV Shows", price: 199, imageUrl: "/images/friends.jpg", slug: "friends" },
-    {
-      id: "tv6",
-      title: "The Office",
-      category: "TV Shows",
-      price: 199,
-      imageUrl: "/images/the-office.jpg",
-      slug: "the-office",
-    },
-    {
-      id: "tv7",
-      title: "Peaky Blinders",
-      category: "TV Shows",
-      price: 249,
-      imageUrl: "/images/peaky-blinders.jpg",
-      slug: "peaky-blinders",
-    },
-    {
-      id: "tv8",
-      title: "Money Heist",
-      category: "TV Shows",
-      price: 249,
-      imageUrl: "/images/money-heist.jpg",
-      slug: "money-heist",
-    },
-  ],
-  cars: [
-    {
-      id: "c1",
-      title: "Ferrari 250 GTO",
-      category: "Cars",
-      price: 299,
-      imageUrl: "/images/ferrari-250-gto.png",
-      slug: "ferrari-250-gto",
-    },
-    // Other car posters would be defined here
-  ],
-  // Other categories would be defined similarly
-}
-
-// Function to map admin category names to URL slugs
+// Function to map category names to URL slugs
 function getCategorySlug(categoryName: string): string {
+  if (!categoryName) return ""
+
   const categoryMap: Record<string, string> = {
     Movies: "movies",
     "TV Shows": "tv-shows",
@@ -176,10 +42,69 @@ function getCategorySlug(categoryName: string): string {
   return categoryMap[categoryName] || categoryName.toLowerCase().replace(/\s+/g, "-")
 }
 
-export default function CategoryPage({ params }: { params: { slug: string } }) {
-  const { slug } = params
-  const category = CATEGORIES[slug as keyof typeof CATEGORIES]
-  const posters = POSTERS_BY_SLUG[slug as keyof typeof POSTERS_BY_SLUG] || []
+export default function CategoryPage() {
+  const params = useParams()
+  const router = useRouter()
+  const slug = params?.slug as string
+  const category = slug ? CATEGORIES[slug as keyof typeof CATEGORIES] : null
+  const { posters, loading } = usePosters()
+  const [sortOption, setSortOption] = useState("featured")
+  const [categoryPosters, setCategoryPosters] = useState<any[]>([])
+
+  useEffect(() => {
+    // If slug is undefined, redirect to shop page
+    if (!slug) {
+      router.push("/shop")
+      return
+    }
+
+    if (!loading && slug) {
+      // Get the category name from the slug
+      const categoryName = slug
+        .split("-")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ")
+
+      // Filter posters by category
+      let filtered = posters.filter((poster) => {
+        if (!poster || !poster.category) return false
+        const posterCategorySlug = getCategorySlug(poster.category)
+        return posterCategorySlug === slug
+      })
+
+      // Sort posters based on the selected option
+      switch (sortOption) {
+        case "price-low":
+          filtered = filtered.sort((a, b) => a.price - b.price)
+          break
+        case "price-high":
+          filtered = filtered.sort((a, b) => b.price - a.price)
+          break
+        case "newest":
+          filtered = filtered.sort((a, b) => Number(b.id) - Number(a.id))
+          break
+        default:
+          // Featured - no specific sorting
+          break
+      }
+
+      setCategoryPosters(filtered)
+    }
+  }, [slug, posters, loading, sortOption, router])
+
+  // If slug is undefined, show loading state
+  if (!slug) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-grow container mx-auto px-4 py-12 text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-current border-t-transparent mx-auto"></div>
+          <p className="mt-2">Loading...</p>
+        </div>
+        <Footer />
+      </div>
+    )
+  }
 
   // If category doesn't exist, this would be handled better in a real app
   if (!category) {
@@ -192,6 +117,19 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
           <Link href="/shop">
             <Button>Back to Shop</Button>
           </Link>
+        </div>
+        <Footer />
+      </div>
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-grow container mx-auto px-4 py-12 text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-current border-t-transparent mx-auto"></div>
+          <p className="mt-2">Loading posters...</p>
         </div>
         <Footer />
       </div>
@@ -221,7 +159,7 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
 
             <div className="flex items-center gap-4">
               <span className="text-sm text-gray-500">Sort by:</span>
-              <Select defaultValue="featured">
+              <Select value={sortOption} onValueChange={setSortOption}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
@@ -235,23 +173,30 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {posters.map((poster) => (
-              <PosterCard
-                key={poster.id}
-                id={poster.id}
-                title={poster.title}
-                category={poster.category}
-                price={poster.price}
-                imageUrl={poster.imageUrl}
-                slug={poster.slug}
-              />
-            ))}
-          </div>
-
-          {posters.length > 8 && (
-            <div className="mt-12 text-center">
-              <Button className="bg-black text-white hover:bg-gray-800 px-8 py-6 text-lg font-bold">LOAD MORE</Button>
+          {categoryPosters.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {categoryPosters.map((poster) => (
+                <PosterCard
+                  key={poster.id}
+                  id={poster.id}
+                  title={poster.title}
+                  category={poster.category}
+                  price={poster.price}
+                  imageUrl={poster.imageUrl}
+                  slug={poster.slug}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-gray-500">No posters found in this category.</p>
+              <p className="text-gray-500 mt-2">
+                Try adding some from the{" "}
+                <Link href="/admin/posters" className="text-blue-500 hover:underline">
+                  admin panel
+                </Link>
+                .
+              </p>
             </div>
           )}
         </div>

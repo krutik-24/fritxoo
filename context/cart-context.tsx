@@ -2,21 +2,20 @@
 
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
 
 export interface CartItem {
   id: string
   title: string
   price: number
   category: string
-  imageData?: string | null
+  imageUrl?: string
   quantity: number
   size?: string
 }
 
 interface CartContextType {
   items: CartItem[]
-  addItem: (item: Omit<CartItem, "quantity">, quantity?: number, redirect?: boolean) => void
+  addItem: (item: Omit<CartItem, "quantity">) => void
   removeItem: (id: string) => void
   updateQuantity: (id: string, quantity: number) => void
   clearCart: () => void
@@ -28,48 +27,38 @@ const CartContext = createContext<CartContextType | undefined>(undefined)
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
-  const router = useRouter()
 
-  // Load cart from localStorage on component mount
+  // Load cart from localStorage on mount
   useEffect(() => {
-    const savedCart = localStorage.getItem("cart")
-    if (savedCart) {
-      try {
+    try {
+      const savedCart = localStorage.getItem("poster-cart")
+      if (savedCart) {
         setItems(JSON.parse(savedCart))
-      } catch (error) {
-        console.error("Failed to parse cart from localStorage:", error)
       }
+    } catch (error) {
+      console.error("Failed to load cart:", error)
     }
   }, [])
 
-  // Save cart to localStorage whenever it changes
+  // Save cart to localStorage when items change
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(items))
+    try {
+      localStorage.setItem("poster-cart", JSON.stringify(items))
+    } catch (error) {
+      console.error("Failed to save cart:", error)
+    }
   }, [items])
 
-  const addItem = (newItem: Omit<CartItem, "quantity">, quantity = 1, redirect = true) => {
+  const addItem = (newItem: Omit<CartItem, "quantity">) => {
     setItems((prevItems) => {
-      // Check if item already exists in cart
-      const existingItemIndex = prevItems.findIndex((item) => item.id === newItem.id)
+      const existingItem = prevItems.find((item) => item.id === newItem.id)
 
-      if (existingItemIndex >= 0) {
-        // Update quantity of existing item
-        const updatedItems = [...prevItems]
-        updatedItems[existingItemIndex] = {
-          ...updatedItems[existingItemIndex],
-          quantity: updatedItems[existingItemIndex].quantity + quantity,
-        }
-        return updatedItems
+      if (existingItem) {
+        return prevItems.map((item) => (item.id === newItem.id ? { ...item, quantity: item.quantity + 1 } : item))
       } else {
-        // Add new item
-        return [...prevItems, { ...newItem, quantity }]
+        return [...prevItems, { ...newItem, quantity: 1 }]
       }
     })
-
-    // Redirect to cart page if specified
-    if (redirect) {
-      router.push("/cart")
-    }
   }
 
   const removeItem = (id: string) => {
@@ -90,7 +79,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }
 
   const itemCount = items.reduce((total, item) => total + item.quantity, 0)
-
   const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0)
 
   return (

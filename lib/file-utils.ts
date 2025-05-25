@@ -1,57 +1,47 @@
 /**
- * Utility functions for file handling
+ * Generates a URL-friendly slug from a string
  */
-
-// Generate a slug from a string (for filenames and URLs)
 export function generateSlug(text: string): string {
+  if (!text) return ""
+
   return text
     .toLowerCase()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
+    .replace(/[^\w\s-]/g, "") // Remove special characters
+    .replace(/\s+/g, "-") // Replace spaces with hyphens
+    .replace(/-+/g, "-") // Replace multiple hyphens with a single hyphen
+    .trim() // Remove whitespace from both ends
 }
 
-// Generate a file path for saving to public/images
+/**
+ * Generates a file path for saving an image
+ */
 export function generateFilePath(file: File, title: string): string {
-  const extension = file.name.split(".").pop()
+  if (!file || !title) return ""
+
+  const fileExtension = file.name.split(".").pop() || ""
   const slug = generateSlug(title)
-  return `/images/${slug}.${extension}`
+  return `/images/${slug}.${fileExtension}`
 }
 
-// Map admin category names to URL slugs
-export function getCategorySlug(categoryName: string): string {
-  const categoryMap: Record<string, string> = {
-    Movies: "movies",
-    "TV Shows": "tv-shows",
-    Music: "music",
-    Sports: "sports",
-    Anime: "anime",
-    Gaming: "gaming",
-    Minimalist: "minimalist",
-    Typography: "typography",
-    Cars: "cars",
-  }
-  return categoryMap[categoryName] || categoryName.toLowerCase().replace(/\s+/g, "-")
+/**
+ * Creates a data URL preview for a file
+ */
+export async function createFilePreview(file: File): Promise<string> {
+  return new Promise((resolve) => {
+    const reader = new FileReader()
+    reader.onloadend = () => resolve(reader.result as string)
+    reader.readAsDataURL(file)
+  })
 }
 
-// Map URL slugs to admin category names
-export function getCategoryName(slug: string): string {
-  const slugMap: Record<string, string> = {
-    movies: "Movies",
-    "tv-shows": "TV Shows",
-    music: "Music",
-    sports: "Sports",
-    anime: "Anime",
-    gaming: "Gaming",
-    minimalist: "Minimalist",
-    typography: "Typography",
-    cars: "Cars",
-  }
-  return (
-    slugMap[slug] ||
-    slug
-      .split("-")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ")
-  )
+/**
+ * Formats a price as currency
+ */
+export function formatPrice(price: number): string {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(price)
 }

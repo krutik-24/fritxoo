@@ -88,53 +88,32 @@ export default function PublicImageUploader({ onUploadComplete, title = "" }: Pu
 
       setUploadProgress(30) // Update progress
 
-      // In a real app, this would be an actual API call
-      // For demo purposes, we'll simulate the upload
-      setTimeout(() => {
-        setUploadProgress(70) // Update progress
-
-        setTimeout(() => {
-          setUploadProgress(100) // Complete progress
-          setUploadComplete(true)
-          setIsUploading(false)
-
-          // Call the callback with the image path
-          const imagePath = `/images/${filename}`
-          onUploadComplete(imagePath)
-
-          toast({
-            title: "Upload complete",
-            description: "Image has been saved to public/images directory",
-          })
-        }, 500)
-      }, 1000)
-
-      // In a real app, you would use fetch to upload the file:
-      /*
-      const response = await fetch('/api/upload-to-public', {
-        method: 'POST',
+      // Make the API call to upload the file
+      const response = await fetch("/api/upload-to-public", {
+        method: "POST",
         body: formData,
       })
-      
+
       if (!response.ok) {
-        throw new Error('Failed to upload file')
+        throw new Error("Failed to upload file")
       }
-      
+
       const data = await response.json()
-      
+
       if (data.success) {
-        setUploadProgress(100)
+        setUploadProgress(100) // Complete progress
         setUploadComplete(true)
+
+        // Call the callback with the image path
         onUploadComplete(data.path)
-        
+
         toast({
           title: "Upload complete",
           description: "Image has been saved to public/images directory",
         })
       } else {
-        throw new Error(data.error || 'Failed to upload file')
+        throw new Error(data.error || "Failed to upload file")
       }
-      */
     } catch (error) {
       console.error("Error uploading file:", error)
       toast({

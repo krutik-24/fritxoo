@@ -1,74 +1,72 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-
 import { useEffect, useState } from "react"
-import Link from "next/link"
-import { Star } from "lucide-react"
+import { useParams } from "next/navigation"
+import { usePosters } from "@/context/poster-context"
+import { useAnalytics } from "@/context/analytics-context"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import ProductImageGallery from "@/components/product-image-gallery"
 import ProductActions from "@/components/product-actions"
-import PromoBar from "@/components/promo-bar"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
+import { ArrowLeft } from "lucide-react"
 
-// Sample product data - in a real app, this would come from your database
-const SAMPLE_PRODUCTS = {
-  "unknown-3-piece-set": {
-    id: "unknown-3-piece-set",
-    title: "Unknown | 3 Piece Set",
-    category: "Sets",
-    price: 299,
-    imageData: null,
-  },
-  "cyberpunk-city": {
-    id: "cyberpunk-city",
-    title: "Cyberpunk City",
-    category: "Gaming",
-    price: 99,
-    imageData: null,
-  },
-  "sunset-beach": {
-    id: "sunset-beach",
-    title: "Sunset Beach",
-    category: "Minimalist",
-    price: 249,
-    imageData: null,
-  },
-}
-
-export default function ProductDetailPage({ params }: { params: { slug: string } }) {
-  const { slug } = params
-  const [product, setProduct] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+export default function ProductPage() {
+  const params = useParams()
+  const slug = params?.slug as string
+  const { posters, loading } = usePosters()
+  const { trackView } = useAnalytics()
+  const [poster, setPoster] = useState<any>(null)
+  const [notFound, setNotFound] = useState(false)
 
   useEffect(() => {
-    // In a real app, you would fetch the product data from your API
-    // For demo purposes, we'll use the sample data
-    setLoading(true)
+    if (!slug) return
 
-    // Simulate API call
-    setTimeout(() => {
-      const foundProduct = SAMPLE_PRODUCTS[slug as keyof typeof SAMPLE_PRODUCTS]
-      setProduct(foundProduct || null)
-      setLoading(false)
-    }, 300)
-  }, [slug])
+    if (!loading) {
+      const foundPoster = posters.find((p) => p.slug === slug || p.id === slug)
+      if (foundPoster) {
+        setPoster(foundPoster)
+        // Track view when poster is found
+        trackView(foundPoster.id, "product_page")
+      } else {
+        setNotFound(true)
+      }
+    }
+  }, [slug, posters, loading, trackView])
 
-  if (loading) {
+  if (!slug) {
     return (
-      <div className="flex flex-col min-h-screen">
+      <div className="min-h-screen flex flex-col">
         <Navbar />
-        <div className="flex-grow flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
+        <div className="flex-grow container mx-auto px-4 py-12 text-center">
+          <h1 className="text-3xl font-bold mb-4">Invalid Product URL</h1>
+          <p className="mb-8">The product URL is invalid.</p>
+          <Link href="/shop">
+            <Button>Browse All Products</Button>
+          </Link>
         </div>
         <Footer />
       </div>
     )
   }
 
-  if (!product) {
+  if (loading) {
     return (
-      <div className="flex flex-col min-h-screen">
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-grow container mx-auto px-4 py-12 text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-current border-t-transparent mx-auto"></div>
+          <p className="mt-2">Loading product...</p>
+        </div>
+        <Footer />
+      </div>
+    )
+  }
+
+  if (notFound) {
+    return (
+      <div className="min-h-screen flex flex-col">
         <Navbar />
         <div className="flex-grow container mx-auto px-4 py-12 text-center">
           <h1 className="text-3xl font-bold mb-4">Product Not Found</h1>
@@ -82,46 +80,44 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
     )
   }
 
+  if (!poster) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-grow container mx-auto px-4 py-12 text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-current border-t-transparent mx-auto"></div>
+          <p className="mt-2">Loading product details...</p>
+        </div>
+        <Footer />
+      </div>
+    )
+  }
+
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
-      <PromoBar />
 
-      <main className="flex-grow container mx-auto px-4 py-8 md:py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-          {/* Product Images */}
-          <ProductImageGallery />
+      <main className="flex-grow bg-gray-50 py-12">
+        <div className="container mx-auto px-4">
+          <div className="mb-8">
+            <Link href={`/category/${poster.category.toLowerCase().replace(/\s+/g, "-")}`}>
+              <Button variant="outline" className="flex items-center gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                Back to {poster.category}
+              </Button>
+            </Link>
+          </div>
 
-          {/* Product Details */}
-          <div className="space-y-6">
-            <h1 className="text-3xl font-bold">{product.title}</h1>
-
-            <div className="flex items-center">
-              <div className="flex items-center">
-                <span className="mr-1">4.9/5</span>
-                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-              </div>
-              <span className="mx-2">-</span>
-              <Link href="#reviews" className="text-sm text-gray-600 hover:underline">
-                1000+ Reviews
-              </Link>
-              <Link href="#reviews" className="ml-2 text-sm text-yellow-500 hover:underline">
-                See their experiences
-              </Link>
-            </div>
-
-            <div className="border-t border-b py-4">
-              <div className="flex items-baseline">
-                <span className="text-2xl font-bold">Rs. {product.price.toFixed(2)}</span>
-                <span className="ml-2 text-sm text-gray-600">Taxes included.</span>
-              </div>
-              <Link href="/shipping" className="text-sm text-gray-600 hover:underline">
-                Shipping
-              </Link>
-              <span className="text-sm text-gray-600"> calculated at checkout.</span>
-            </div>
-
-            <ProductActions product={product} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <ProductImageGallery imageUrl={poster.imageUrl} title={poster.title} />
+            <ProductActions
+              id={poster.id}
+              title={poster.title}
+              price={poster.price}
+              category={poster.category}
+              description={poster.description}
+              imageUrl={poster.imageUrl}
+            />
           </div>
         </div>
       </main>

@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { writeFile } from "fs/promises"
+import { writeFile, mkdir } from "fs/promises"
 import { join } from "path"
+import { existsSync } from "fs"
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,8 +16,14 @@ export async function POST(request: NextRequest) {
     // Convert file to buffer
     const buffer = Buffer.from(await file.arrayBuffer())
 
+    // Ensure the directory exists
+    const directory = join(process.cwd(), "public", "images")
+    if (!existsSync(directory)) {
+      await mkdir(directory, { recursive: true })
+    }
+
     // Define the path where the file will be saved
-    const path = join(process.cwd(), "public", "images", filename)
+    const path = join(directory, filename)
 
     // Write the file to the public/images directory
     await writeFile(path, buffer)
