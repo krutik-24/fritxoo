@@ -4,38 +4,150 @@ import { useAnalytics } from "@/context/analytics-context"
 import { usePosters } from "@/context/poster-context"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { SimpleChart } from "@/components/analytics/simple-chart"
 import { Eye, MousePointer, TrendingUp, Users, Calendar, BarChart3, Trash2 } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 export default function AnalyticsPage() {
-  const { analytics, getTopPosters, getCategoryStats, getViewsOverTime, clearAnalytics } = useAnalytics()
-  const { posters } = usePosters()
+  const [mounted, setMounted] = useState(false)
   const [timeRange, setTimeRange] = useState<7 | 14 | 30>(7)
 
-  const topPosters = getTopPosters(10)
-  const categoryStats = getCategoryStats()
-  const viewsOverTime = getViewsOverTime(timeRange)
+  // Ensure component is mounted before accessing analytics
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Analytics Dashboard</h1>
+            <p className="text-gray-600">Loading analytics data...</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map((i) => (
+            <Card key={i}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div className="h-4 w-20 bg-gray-200 rounded animate-pulse" />
+                <div className="h-4 w-4 bg-gray-200 rounded animate-pulse" />
+              </CardHeader>
+              <CardContent>
+                <div className="h-8 w-16 bg-gray-200 rounded animate-pulse mb-2" />
+                <div className="h-3 w-24 bg-gray-200 rounded animate-pulse" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  return <AnalyticsContent timeRange={timeRange} setTimeRange={setTimeRange} />
+}
+
+function AnalyticsContent({
+  timeRange,
+  setTimeRange,
+}: {
+  timeRange: 7 | 14 | 30
+  setTimeRange: (range: 7 | 14 | 30) => void
+}) {
+  const { getAnalytics, clearAnalytics } = useAnalytics()
+  const { posters } = usePosters()
+
+  const analytics = getAnalytics()
+  const totalViews = analytics.views.length
+  const totalClicks = analytics.clicks.length
+  const uniqueViews = new Set(analytics.views.map((v) => v.posterId)).size
+  const conversionRate = totalViews > 0 ? ((totalClicks / totalViews) * 100).toFixed(1) : "0"
+
+  // Get top posters
+  const posterStats = new Map<string, { title: string; views: number; clicks: number }>()
+
+  analytics.views.forEach((view) => {
+    const poster = posters.find((p) => p.id === view.posterId)
+    if (poster) {
+      const existing = posterStats.get(view.posterId) || { title: poster.title, views: 0, clicks: 0 }
+      posterStats.set(view.posterId, { ...existing, views: existing.views + 1 })
+    }
+  })
+
+  analytics.clicks.forEach((click) => {
+    const poster = posters.find((p) => p.id === click.posterId)
+    if (poster) {
+      const existing = posterStats.get(click.posterId) || { title: poster.title, views: 0, clicks: 0 }
+      posterStats.set(click.posterId, { ...existing, clicks: existing.clicks + 1 })
+    }
+  })
+
+  const topPosters = Array.from(posterStats.entries())
+    .map(([id, stats]) => ({ id, ...stats, total: stats.views + stats.clicks }))
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 5)
+
+  // Get category stats
+  const categoryStats = new Map<string, { views: number; clicks: number }>()
+
+  analytics.views.forEach((view) => {
+    const poster = posters.find((p) => p.id === view.posterId)
+    if (poster) {
+      const existing = categoryStats.get(poster.category) || { views: 0, clicks: 0 }
+      categoryStats.set(poster.category, { ...existing, views: existing.views + 1 })
+    }
+  })
+
+  analytics.clicks.forEach((click) => {
+    const poster = posters.find((p) => p.id === click.posterId)
+    if (poster) {
+      const existing = categoryStats.get(poster.category) || { views: 0, clicks: 0 }
+      categoryStats.set(poster.category, { ...existing, clicks: existing.clicks + 1 })
+    }
+  })
+
+  const topCategories = Array.from(categoryStats.entries())
+    .map(([category, stats]) => ({ category, ...stats, total: stats.views + stats.clicks }))
+    .sort((a, b) => b.total - a.total)
+
+  // Get views over time
+  const now = Date.now()
+  const dayMs = 24 * 60 * 60 * 1000
+  const startTime = now - timeRange * dayMs
+
+  const dailyStats = new Map<string, { views: number; clicks: number }>()
+
+  // Initialize all days
+  for (let i = 0; i < timeRange; i++) {
+    const date = new Date(now - i * dayMs).toISOString().split("T")[0]
+    dailyStats.set(date, { views: 0, clicks: 0 })
+  }
+
+  // Count views and clicks
+  analytics.views
+    .filter((view) => view.timestamp >= startTime)
+    .forEach((view) => {
+      const date = new Date(view.timestamp).toISOString().split("T")[0]
+      const existing = dailyStats.get(date) || { views: 0, clicks: 0 }
+      dailyStats.set(date, { ...existing, views: existing.views + 1 })
+    })
+
+  analytics.clicks
+    .filter((click) => click.timestamp >= startTime)
+    .forEach((click) => {
+      const date = new Date(click.timestamp).toISOString().split("T")[0]
+      const existing = dailyStats.get(date) || { views: 0, clicks: 0 }
+      dailyStats.set(date, { ...existing, clicks: existing.clicks + 1 })
+    })
+
+  const viewsOverTime = Array.from(dailyStats.entries())
+    .map(([date, stats]) => ({ date, ...stats }))
+    .sort((a, b) => a.date.localeCompare(b.date))
 
   const handleClearAnalytics = () => {
     if (confirm("Are you sure you want to clear all analytics data? This action cannot be undone.")) {
       clearAnalytics()
     }
   }
-
-  // Calculate conversion rate (clicks / views)
-  const conversionRate =
-    analytics.totalViews > 0 ? ((analytics.totalClicks / analytics.totalViews) * 100).toFixed(1) : "0"
-
-  // Get most popular source
-  const sourceCounts = analytics.views.reduce(
-    (acc, view) => {
-      acc[view.source] = (acc[view.source] || 0) + 1
-      return acc
-    },
-    {} as Record<string, number>,
-  )
-  const topSource = Object.entries(sourceCounts).sort(([, a], [, b]) => b - a)[0]
 
   return (
     <div className="space-y-6">
@@ -58,7 +170,7 @@ export default function AnalyticsPage() {
             <Eye className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{analytics.totalViews}</div>
+            <div className="text-2xl font-bold">{totalViews}</div>
             <p className="text-xs text-muted-foreground">All time poster views</p>
           </CardContent>
         </Card>
@@ -69,7 +181,7 @@ export default function AnalyticsPage() {
             <MousePointer className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{analytics.totalClicks}</div>
+            <div className="text-2xl font-bold">{totalClicks}</div>
             <p className="text-xs text-muted-foreground">User interactions</p>
           </CardContent>
         </Card>
@@ -91,7 +203,7 @@ export default function AnalyticsPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{analytics.uniqueViews}</div>
+            <div className="text-2xl font-bold">{uniqueViews}</div>
             <p className="text-xs text-muted-foreground">Posters with views</p>
           </CardContent>
         </Card>
@@ -102,8 +214,8 @@ export default function AnalyticsPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Views Over Time</CardTitle>
-              <CardDescription>Daily views and clicks for the last {timeRange} days</CardDescription>
+              <CardTitle>Activity Over Time</CardTitle>
+              <CardDescription>Views and clicks for the last {timeRange} days</CardDescription>
             </div>
             <div className="flex gap-2">
               {[7, 14, 30].map((days) => (
@@ -121,14 +233,19 @@ export default function AnalyticsPage() {
         </CardHeader>
         <CardContent>
           {viewsOverTime.length > 0 ? (
-            <SimpleChart
-              data={viewsOverTime.map((item) => ({
-                label: new Date(item.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-                value: item.views + item.clicks,
-              }))}
-              type="line"
-              height={250}
-            />
+            <div className="space-y-4">
+              {viewsOverTime.map((day) => (
+                <div key={day.date} className="flex items-center justify-between p-2 border rounded">
+                  <span className="text-sm font-medium">
+                    {new Date(day.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  </span>
+                  <div className="flex gap-4 text-sm">
+                    <span>{day.views} views</span>
+                    <span>{day.clicks} clicks</span>
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="text-center py-8 text-gray-500">
               <Calendar className="mx-auto h-12 w-12 mb-4" />
@@ -148,15 +265,15 @@ export default function AnalyticsPage() {
           <CardContent>
             {topPosters.length > 0 ? (
               <div className="space-y-4">
-                {topPosters.slice(0, 5).map((poster, index) => (
-                  <div key={poster.posterId} className="flex items-center justify-between p-3 border rounded">
+                {topPosters.map((poster, index) => (
+                  <div key={poster.id} className="flex items-center justify-between p-3 border rounded">
                     <div className="flex items-center gap-3">
                       <div className="flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-600 rounded-full text-sm font-bold">
                         {index + 1}
                       </div>
                       <div>
-                        <p className="font-medium truncate max-w-[200px]" title={poster.posterTitle}>
-                          {poster.posterTitle}
+                        <p className="font-medium truncate max-w-[200px]" title={poster.title}>
+                          {poster.title}
                         </p>
                         <p className="text-sm text-gray-500">
                           {poster.views} views • {poster.clicks} clicks
@@ -164,21 +281,11 @@ export default function AnalyticsPage() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-medium">{poster.views + poster.clicks}</p>
-                      <p className="text-xs text-gray-500">total interactions</p>
+                      <p className="text-sm font-medium">{poster.total}</p>
+                      <p className="text-xs text-gray-500">total</p>
                     </div>
                   </div>
                 ))}
-                {topPosters.length > 5 && (
-                  <SimpleChart
-                    data={topPosters.slice(0, 8).map((poster) => ({
-                      label: poster.posterTitle.split(" ").slice(0, 2).join(" "),
-                      value: poster.views + poster.clicks,
-                    }))}
-                    type="bar"
-                    height={200}
-                  />
-                )}
               </div>
             ) : (
               <div className="text-center py-8 text-gray-500">
@@ -197,9 +304,9 @@ export default function AnalyticsPage() {
             <CardDescription>Views and clicks by category</CardDescription>
           </CardHeader>
           <CardContent>
-            {categoryStats.length > 0 ? (
+            {topCategories.length > 0 ? (
               <div className="space-y-4">
-                {categoryStats.map((category, index) => (
+                {topCategories.map((category, index) => (
                   <div key={category.category} className="flex items-center justify-between p-3 border rounded">
                     <div className="flex items-center gap-3">
                       <div
@@ -214,20 +321,11 @@ export default function AnalyticsPage() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-medium">{category.views + category.clicks}</p>
+                      <p className="text-sm font-medium">{category.total}</p>
                       <p className="text-xs text-gray-500">total</p>
                     </div>
                   </div>
                 ))}
-                <SimpleChart
-                  data={categoryStats.map((category, index) => ({
-                    label: category.category,
-                    value: category.views + category.clicks,
-                    color: ["#3b82f6", "#ef4444", "#10b981", "#f59e0b"][index % 4],
-                  }))}
-                  type="bar"
-                  height={200}
-                />
               </div>
             ) : (
               <div className="text-center py-8 text-gray-500">
@@ -238,27 +336,6 @@ export default function AnalyticsPage() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Traffic Sources */}
-      {Object.keys(sourceCounts).length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Traffic Sources</CardTitle>
-            <CardDescription>Where users discover your posters</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {Object.entries(sourceCounts).map(([source, count]) => (
-                <div key={source} className="text-center p-4 border rounded">
-                  <p className="text-2xl font-bold">{count}</p>
-                  <p className="text-sm text-gray-500 capitalize">{source}</p>
-                  {topSource && source === topSource[0] && <p className="text-xs text-green-600 mt-1">Top source</p>}
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
   )
 }
