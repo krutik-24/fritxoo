@@ -3,15 +3,17 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { generateSlug } from "@/lib/file-utils"
 
-// Define poster type
+// Define poster type with size options
 export interface Poster {
   id: string
   title: string
   category: string
   price: number
+  priceA3: number
   description: string
   imageUrl: string
   slug: string
+  size?: "A4" | "A3" | "A3+"
 }
 
 // Define the context type
@@ -33,7 +35,7 @@ export function PosterProvider({ children }: { children: ReactNode }) {
   const [posters, setPosters] = useState<Poster[]>([])
   const [loading, setLoading] = useState(true)
 
-  // Initialize with all car posters
+  // Initialize with all car posters - only ones with actual images
   useEffect(() => {
     const loadPosters = async () => {
       // Simulate API delay
@@ -43,21 +45,23 @@ export function PosterProvider({ children }: { children: ReactNode }) {
       const savedPosters = localStorage.getItem("posters")
       if (savedPosters) {
         const parsedPosters = JSON.parse(savedPosters)
-        // Update all poster prices to 99 if they're not already
+        // Update all poster prices to new structure if they don't have priceA3
         const updatedPosters = parsedPosters.map((poster: Poster) => ({
           ...poster,
-          price: 99,
+          price: 99, // A4 price
+          priceA3: poster.priceA3 || 150, // A3 price
         }))
         setPosters(updatedPosters)
         localStorage.setItem("posters", JSON.stringify(updatedPosters))
       } else {
-        // Initialize with all car posters at ₹99
+        // Initialize with all car posters - A4: ₹99, A3: ₹150
         const initialPosters = [
           {
             id: "1",
             title: "Ferrari 250 GTO",
             category: "Cars",
             price: 99,
+            priceA3: 150,
             description: "Classic Ferrari 250 GTO sports car",
             imageUrl: "/images/ferrari-250-gto.png",
             slug: "ferrari-250-gto",
@@ -67,6 +71,7 @@ export function PosterProvider({ children }: { children: ReactNode }) {
             title: "1984 Audi Sport Quattro",
             category: "Cars",
             price: 99,
+            priceA3: 150,
             description: "Iconic 1984 Audi Sport Quattro rally car",
             imageUrl: "/images/audi-sport-quattro.jpg",
             slug: "audi-sport-quattro",
@@ -76,6 +81,7 @@ export function PosterProvider({ children }: { children: ReactNode }) {
             title: "1999 Nissan Skyline GT-R R34",
             category: "Cars",
             price: 99,
+            priceA3: 150,
             description: "Legendary 1999 Nissan Skyline GT-R R34 sports car",
             imageUrl: "/images/nissan-skyline-gtr-r34.jpg",
             slug: "nissan-skyline-gtr-r34",
@@ -85,6 +91,7 @@ export function PosterProvider({ children }: { children: ReactNode }) {
             title: "Ferrari F40 - Unleash The Legend",
             category: "Cars",
             price: 99,
+            priceA3: 150,
             description: "Ferrari F40 supercar with performance specifications",
             imageUrl: "/images/ferrari-f40.png",
             slug: "ferrari-f40-unleash-legend",
@@ -94,6 +101,7 @@ export function PosterProvider({ children }: { children: ReactNode }) {
             title: "Bugatti Chiron - Engineered For Gods",
             category: "Cars",
             price: 99,
+            priceA3: 150,
             description: "Bugatti Chiron hypercar in cyberpunk setting",
             imageUrl: "/images/bugatti-chiron.png",
             slug: "bugatti-chiron-engineered-gods",
@@ -103,6 +111,7 @@ export function PosterProvider({ children }: { children: ReactNode }) {
             title: "Aston Martin DBS - Master The Machine",
             category: "Cars",
             price: 99,
+            priceA3: 150,
             description: "Aston Martin DBS grand tourer",
             imageUrl: "/images/aston-martin-dbs.png",
             slug: "aston-martin-dbs-master-machine",
@@ -112,6 +121,7 @@ export function PosterProvider({ children }: { children: ReactNode }) {
             title: "Lamborghini Aventador - Unleash The Rage",
             category: "Cars",
             price: 99,
+            priceA3: 150,
             description: "Lamborghini Aventador supercar with dramatic lighting",
             imageUrl: "/images/lamborghini-aventador.png",
             slug: "lamborghini-aventador-unleash-rage",
@@ -121,6 +131,7 @@ export function PosterProvider({ children }: { children: ReactNode }) {
             title: "Toyota Century - Timeless Regal",
             category: "Cars",
             price: 99,
+            priceA3: 150,
             description: "Toyota Century luxury sedan in nighttime setting",
             imageUrl: "/images/toyota-century.png",
             slug: "toyota-century-timeless-regal",
@@ -130,6 +141,7 @@ export function PosterProvider({ children }: { children: ReactNode }) {
             title: "1961 Jaguar E-Type Series 1",
             category: "Cars",
             price: 99,
+            priceA3: 150,
             description: "Classic 1961 Jaguar E-Type Series 1 sports car",
             imageUrl: "/images/jaguar-e-type.png",
             slug: "jaguar-e-type-series-1",
@@ -139,6 +151,7 @@ export function PosterProvider({ children }: { children: ReactNode }) {
             title: "The Last Breath of Fire",
             category: "Cars",
             price: 99,
+            priceA3: 150,
             description: "Ferrari with dramatic fire effects and red lighting",
             imageUrl: "/images/ferrari-fire.png",
             slug: "last-breath-fire",
@@ -148,6 +161,7 @@ export function PosterProvider({ children }: { children: ReactNode }) {
             title: "Hellcat - Dominate The Streets",
             category: "Cars",
             price: 99,
+            priceA3: 150,
             description: "Dodge Challenger Hellcat muscle car",
             imageUrl: "/images/hellcat-dominate.png",
             slug: "hellcat-dominate-streets",
@@ -157,6 +171,7 @@ export function PosterProvider({ children }: { children: ReactNode }) {
             title: "Unleash The Hemi Power",
             category: "Cars",
             price: 99,
+            priceA3: 150,
             description: "Dodge Challenger with Hemi engine power",
             imageUrl: "/images/hellcat-hemi.png",
             slug: "unleash-hemi-power",
@@ -166,9 +181,75 @@ export function PosterProvider({ children }: { children: ReactNode }) {
             title: "1963 Ferrari 250 GTO",
             category: "Cars",
             price: 99,
+            priceA3: 150,
             description: "Classic 1963 Ferrari 250 GTO racing legend",
             imageUrl: "/images/ferrari-250-gto-63.png",
             slug: "ferrari-250-gto-1963",
+          },
+          // New car posters with proper image URLs
+          {
+            id: "14",
+            title: "Porsche Turbo S - Where Elegance Meets Velocity",
+            category: "Cars",
+            price: 99,
+            priceA3: 150,
+            description: "Porsche 911 Turbo S on mountain roads with dramatic lighting",
+            imageUrl:
+              "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/porche-LXNOkw4tWeCj0NV7E80ahQsE123bST.png",
+            slug: "porsche-turbo-s-elegance-velocity",
+          },
+          {
+            id: "15",
+            title: "Rage of Retro - Lamborghini Countach",
+            category: "Cars",
+            price: 99,
+            priceA3: 150,
+            description: "Retro synthwave Lamborghini Countach poster with 80s aesthetic",
+            imageUrl:
+              "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/lambo-GFUUouynIi1HvvbF10S7ZwHXWC9ZCm.png",
+            slug: "rage-retro-lamborghini-countach",
+          },
+          {
+            id: "16",
+            title: "Godzilla - The Beast From The East",
+            category: "Cars",
+            price: 99,
+            priceA3: 150,
+            description: "Nissan Skyline GT-R R34 in cyberpunk setting",
+            imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/r34-cES6uiUWHm3piAAZKSuOjswkucEauP.png",
+            slug: "godzilla-beast-east-r34",
+          },
+          {
+            id: "17",
+            title: "1970 Ford Mustang Boss 302",
+            category: "Cars",
+            price: 99,
+            priceA3: 150,
+            description: "Classic 1970 Ford Mustang Boss 302 in minimalist design",
+            imageUrl:
+              "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/mustang-LmDaskP6cWgV0rkeP43Jhd5OMqFgTq.png",
+            slug: "ford-mustang-boss-302-1970",
+          },
+          {
+            id: "18",
+            title: "Skyline GT-R R32 - Cherry Blossom",
+            category: "Cars",
+            price: 99,
+            priceA3: 150,
+            description: "Nissan Skyline GT-R R32 under cherry blossom tree",
+            imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/r32-jCt4k0ZXAB2Cxeqx83LxkrR4ueU3c4.png",
+            slug: "skyline-gtr-r32-cherry-blossom",
+          },
+          {
+            id: "19",
+            title: "Legend Reborn - Toyota Supra",
+            category: "Cars",
+            price: 99,
+            priceA3: 150,
+            description: "Toyota Supra in cyberpunk cityscape - Built for the street, born to dominate",
+            imageUrl:
+              "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/supra-PDeR5Kc4OYt6BR8lrlCC4NtUmkBnMq.png",
+            slug: "legend-reborn-toyota-supra",
           },
         ]
         setPosters(initialPosters)
@@ -197,6 +278,8 @@ export function PosterProvider({ children }: { children: ReactNode }) {
       ...posterData,
       id,
       slug,
+      price: posterData.price || 99,
+      priceA3: posterData.priceA3 || 150,
     }
 
     setPosters((prevPosters) => [...prevPosters, newPoster])

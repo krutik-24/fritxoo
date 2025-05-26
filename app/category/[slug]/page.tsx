@@ -65,9 +65,9 @@ export default function CategoryPage() {
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
         .join(" ")
 
-      // Filter posters by category
+      // Filter posters by category - only show posters with images
       let filtered = posters.filter((poster) => {
-        if (!poster || !poster.category) return false
+        if (!poster || !poster.category || !poster.imageUrl) return false
         const posterCategorySlug = getCategorySlug(poster.category)
         return posterCategorySlug === slug
       })
@@ -106,7 +106,7 @@ export default function CategoryPage() {
     )
   }
 
-  // If category doesn't exist, this would be handled better in a real app
+  // If category doesn't exist
   if (!category) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -158,6 +158,9 @@ export default function CategoryPage() {
             </Link>
 
             <div className="flex items-center gap-4">
+              <span className="text-sm text-gray-500">
+                {categoryPosters.length} poster{categoryPosters.length !== 1 ? "s" : ""} found
+              </span>
               <span className="text-sm text-gray-500">Sort by:</span>
               <Select value={sortOption} onValueChange={setSortOption}>
                 <SelectTrigger className="w-[180px]">
@@ -182,7 +185,9 @@ export default function CategoryPage() {
                   title={poster.title}
                   category={poster.category}
                   price={poster.price}
+                  priceA3={poster.priceA3}
                   imageUrl={poster.imageUrl}
+                  description={poster.description}
                   slug={poster.slug}
                 />
               ))}
