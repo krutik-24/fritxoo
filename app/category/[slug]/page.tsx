@@ -24,30 +24,12 @@ const CATEGORIES = {
   cars: { name: "Cars", description: "Stunning automotive designs and classic cars" },
 }
 
-// Function to map category names to URL slugs
-function getCategorySlug(categoryName: string): string {
-  if (!categoryName) return ""
-
-  const categoryMap: Record<string, string> = {
-    Movies: "movies",
-    "TV Shows": "tv-shows",
-    Music: "music",
-    Sports: "sports",
-    Anime: "anime",
-    Gaming: "gaming",
-    Minimalist: "minimalist",
-    Typography: "typography",
-    Cars: "cars",
-  }
-  return categoryMap[categoryName] || categoryName.toLowerCase().replace(/\s+/g, "-")
-}
-
 export default function CategoryPage() {
   const params = useParams()
   const router = useRouter()
   const slug = params?.slug as string
   const category = slug ? CATEGORIES[slug as keyof typeof CATEGORIES] : null
-  const { posters, loading } = usePosters()
+  const { posters, loading, getPostersByCategory } = usePosters()
   const [sortOption, setSortOption] = useState("featured")
   const [categoryPosters, setCategoryPosters] = useState<any[]>([])
 
@@ -59,17 +41,19 @@ export default function CategoryPage() {
     }
 
     if (!loading && slug) {
-      // Get the category name from the slug
-      const categoryName = slug
-        .split("-")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ")
+      console.log("All posters:", posters)
+      console.log("Filtering for category:", slug)
 
-      // Filter posters by category - only show posters with images
-      let filtered = posters.filter((poster) => {
-        if (!poster || !poster.category || !poster.imageUrl) return false
-        const posterCategorySlug = getCategorySlug(poster.category)
-        return posterCategorySlug === slug
+      // Get posters by category using the context method
+      let filtered = getPostersByCategory(slug)
+
+      console.log("Filtered posters:", filtered)
+
+      // Additional filtering to ensure we only show posters with valid images
+      filtered = filtered.filter((poster) => {
+        const hasValidImage = poster.imageUrl && poster.imageUrl !== "/placeholder.svg" && poster.imageUrl.trim() !== ""
+        console.log(`Poster ${poster.title}: hasValidImage=${hasValidImage}, imageUrl=${poster.imageUrl}`)
+        return hasValidImage
       })
 
       // Sort posters based on the selected option
@@ -84,13 +68,15 @@ export default function CategoryPage() {
           filtered = filtered.sort((a, b) => Number(b.id) - Number(a.id))
           break
         default:
-          // Featured - no specific sorting
+          // Featured - sort by ID for consistent ordering
+          filtered = filtered.sort((a, b) => Number(a.id) - Number(b.id))
           break
       }
 
+      console.log("Final filtered and sorted posters:", filtered)
       setCategoryPosters(filtered)
     }
-  }, [slug, posters, loading, sortOption, router])
+  }, [slug, posters, loading, sortOption, router, getPostersByCategory])
 
   // If slug is undefined, show loading state
   if (!slug) {
