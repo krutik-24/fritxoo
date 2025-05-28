@@ -9,7 +9,7 @@ import Footer from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft } from 'lucide-react'
 
 // Sample data for categories
 const CATEGORIES = {
@@ -41,17 +41,21 @@ export default function CategoryPage() {
     }
 
     if (!loading && slug) {
-      console.log("All posters:", posters)
-      console.log("Filtering for category:", slug)
+      console.log("Loading category:", slug)
+      console.log("All available posters:", posters)
 
       // Get posters by category using the context method
       let filtered = getPostersByCategory(slug)
 
-      console.log("Filtered posters:", filtered)
+      console.log("Filtered posters for category:", filtered)
 
       // Additional filtering to ensure we only show posters with valid images
       filtered = filtered.filter((poster) => {
-        const hasValidImage = poster.imageUrl && poster.imageUrl !== "/placeholder.svg" && poster.imageUrl.trim() !== ""
+        const hasValidImage =
+          poster.imageUrl &&
+          poster.imageUrl !== "/placeholder.svg" &&
+          poster.imageUrl.trim() !== ""
+
         console.log(`Poster ${poster.title}: hasValidImage=${hasValidImage}, imageUrl=${poster.imageUrl}`)
         return hasValidImage
       })

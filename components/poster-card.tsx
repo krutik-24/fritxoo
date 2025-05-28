@@ -32,6 +32,7 @@ export default function PosterCard({
   slug,
 }: PosterCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false)
+  const [imageError, setImageError] = useState(false)
   const [selectedSize, setSelectedSize] = useState<"A4" | "A3">("A4")
   const { addItem } = useCart()
   const { trackView, trackClick } = useAnalytics()
@@ -43,7 +44,7 @@ export default function PosterCard({
   }, [id, trackView])
 
   // Calculate current price based on selected size
-  const currentPrice = selectedSize === "A4" ? price : priceA3 || 150
+  const currentPrice = selectedSize === "A4" ? price : priceA3 || 149
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -70,28 +71,45 @@ export default function PosterCard({
     trackClick(id, "view_details")
   }
 
+  const handleImageError = () => {
+    console.error(`Failed to load image: ${imageUrl}`)
+    setImageError(true)
+    setImageLoaded(true)
+  }
+
   const productSlug = slug || id
+
+  // Don't render if image URL is invalid
+  if (!imageUrl || imageUrl === "/placeholder.svg" || imageUrl.trim() === "") {
+    return null
+  }
 
   return (
     <div className="group relative bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
       <Link href={`/products/${productSlug}`} onClick={handleViewDetails}>
         <div className="aspect-[3/4] relative overflow-hidden bg-gray-100">
-          <Image
-            src={imageUrl || "/placeholder.svg"}
-            alt={title}
-            fill
-            className={`object-cover transition-transform duration-300 group-hover:scale-105 ${
-              imageLoaded ? "opacity-100" : "opacity-0"
-            }`}
-            onLoad={() => setImageLoaded(true)}
-            onError={() => {
-              console.error(`Failed to load image: ${imageUrl}`)
-              setImageLoaded(true)
-            }}
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            priority={false}
-          />
-          {!imageLoaded && (
+          {!imageError ? (
+            <Image
+              src={imageUrl || "/placeholder.svg"}
+              alt={title}
+              fill
+              className={`object-cover transition-transform duration-300 group-hover:scale-105 ${
+                imageLoaded ? "opacity-100" : "opacity-0"
+              }`}
+              onLoad={() => setImageLoaded(true)}
+              onError={handleImageError}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              priority={false}
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
+              <div className="text-gray-400 text-sm text-center">
+                <div className="mb-2">📷</div>
+                <div>Image unavailable</div>
+              </div>
+            </div>
+          )}
+          {!imageLoaded && !imageError && (
             <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
               <div className="text-gray-400 text-sm">Loading...</div>
             </div>
@@ -121,7 +139,7 @@ export default function PosterCard({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="A4">A4 - ₹{price}</SelectItem>
-                <SelectItem value="A3">A3 - ₹{priceA3 || 150}</SelectItem>
+                <SelectItem value="A3">A3 - ₹{priceA3 || 149}</SelectItem>
               </SelectContent>
             </Select>
           </div>

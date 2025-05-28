@@ -4,20 +4,38 @@ import { useState } from "react"
 import { usePosters } from "@/context/poster-context"
 import PosterCard from "@/components/poster-card"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
-export default function PosterGallery() {
-  const { posters, loading } = usePosters()
+interface PosterGalleryProps {
+  posters?: any[]
+  title?: string
+  subtitle?: string
+  loading?: boolean
+}
+
+export default function PosterGallery({ 
+  posters: propPosters, 
+  title = "Featured Posters",
+  subtitle = "Discover our collection of stunning automotive art",
+  loading: propLoading 
+}: PosterGalleryProps) {
+  const { posters, loading: contextLoading } = usePosters()
   const [currentPage, setCurrentPage] = useState(1)
   const postersPerPage = 8
 
+  // Use prop loading state if provided, otherwise use context loading
+  const isLoading = propLoading !== undefined ? propLoading : contextLoading
+
+  // Use propPosters if provided, otherwise use all posters from context
+  const postersToDisplay = propPosters || posters
+
   // Calculate total pages
-  const totalPages = Math.ceil(posters.length / postersPerPage)
+  const totalPages = Math.ceil(postersToDisplay.length / postersPerPage)
 
   // Get current posters
   const indexOfLastPoster = currentPage * postersPerPage
   const indexOfFirstPoster = indexOfLastPoster - postersPerPage
-  const currentPosters = posters.slice(indexOfFirstPoster, indexOfLastPoster)
+  const currentPosters = postersToDisplay.slice(indexOfFirstPoster, indexOfLastPoster)
 
   // Change page
   const nextPage = () => {
@@ -32,11 +50,11 @@ export default function PosterGallery() {
     }
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
       <section className="py-12 bg-gray-50">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-8">Featured Car Posters</h2>
+          <h2 className="text-3xl font-bold text-center mb-8">{title}</h2>
           <div className="text-center py-12">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-current border-t-transparent mx-auto"></div>
             <p className="mt-2">Loading posters...</p>
@@ -46,11 +64,11 @@ export default function PosterGallery() {
     )
   }
 
-  if (posters.length === 0) {
+  if (postersToDisplay.length === 0) {
     return (
       <section className="py-12 bg-gray-50">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-8">Featured Car Posters</h2>
+          <h2 className="text-3xl font-bold text-center mb-8">{title}</h2>
           <div className="text-center py-12">
             <p className="text-gray-500">No posters available. Add some from the admin panel.</p>
           </div>
@@ -63,8 +81,8 @@ export default function PosterGallery() {
     <section className="py-12 bg-gray-50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold mb-4">Featured Car Posters</h2>
-          <p className="text-gray-600">Discover our collection of stunning automotive art</p>
+          <h2 className="text-3xl font-bold mb-4">{title}</h2>
+          <p className="text-gray-600">{subtitle}</p>
           <p className="text-lg font-semibold text-green-600 mt-2">All posters only ₹99!</p>
         </div>
 
@@ -76,7 +94,9 @@ export default function PosterGallery() {
               title={poster.title}
               category={poster.category}
               price={poster.price}
+              priceA3={poster.priceA3}
               imageUrl={poster.imageUrl}
+              description={poster.description}
               slug={poster.slug}
             />
           ))}
