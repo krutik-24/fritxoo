@@ -1,6 +1,4 @@
 "use client"
-
-import type React from "react"
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { generateSlug } from "@/lib/file-utils"
 
@@ -65,7 +63,8 @@ export function PosterProvider({ children }: { children: ReactNode }) {
           price: 99,
           priceA3: 149,
           description: "Iconic 1984 Audi Sport Quattro rally car",
-          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/audi.jpg-yCWRGWaZF7TBITD9awP7MDRDUNdqD9.jpeg",
+          imageUrl:
+            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/audi.jpg-yCWRGWaZF7TBITD9awP7MDRDUNdqD9.jpeg",
           slug: "audi-sport-quattro",
           featured: true,
         },
@@ -259,8 +258,7 @@ export function PosterProvider({ children }: { children: ReactNode }) {
           price: 99,
           priceA3: 149,
           description: "Toyota Supra in cyberpunk cityscape - Built for the street, born to dominate",
-          imageUrl:
-            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/supra-PDeR5Kc4OYt6BR8lrlCC4NtUmkBnMq.png",
+          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/supra-PDeR5Kc4OYt6BR8lrlCC4NtUmkBnMq.png",
           slug: "legend-reborn-toyota-supra",
           featured: false,
         },
@@ -437,12 +435,37 @@ export function PosterProvider({ children }: { children: ReactNode }) {
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(" ")
 
-    return posters.filter((poster) => {
-      if (!poster || !poster.category || !poster.imageUrl) return false
-      // Filter out placeholder images but allow all valid image URLs
-      if (poster.imageUrl === "/placeholder.svg" || poster.imageUrl.trim() === "") return false
-      return poster.category.toLowerCase() === formattedCategory.toLowerCase()
+    console.log("Filtering for category:", formattedCategory)
+    console.log("Available posters:", posters.length)
+
+    const filtered = posters.filter((poster) => {
+      if (!poster || !poster.category || !poster.imageUrl) {
+        console.log("Poster failed basic checks:", poster?.title)
+        return false
+      }
+
+      // Only exclude obvious placeholders
+      if (
+        poster.imageUrl === "/placeholder.svg" ||
+        poster.imageUrl.trim() === "" ||
+        poster.imageUrl.includes("placeholder")
+      ) {
+        console.log("Poster has placeholder image:", poster.title)
+        return false
+      }
+
+      const categoryMatch = poster.category.toLowerCase() === formattedCategory.toLowerCase()
+      console.log(`Poster ${poster.title}: category=${poster.category}, match=${categoryMatch}`)
+
+      return categoryMatch
     })
+
+    console.log(
+      "Filtered results:",
+      filtered.length,
+      filtered.map((p) => p.title),
+    )
+    return filtered
   }
 
   // Get featured posters

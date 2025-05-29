@@ -11,6 +11,7 @@ export interface CartItem {
   imageUrl?: string
   quantity: number
   size?: string
+  imageData?: string // For base64 encoded images
 }
 
 interface CartContextType {

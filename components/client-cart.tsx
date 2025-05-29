@@ -7,7 +7,7 @@ import Footer from "@/components/footer"
 import { useCart } from "@/context/cart-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, AlertCircle } from "lucide-react"
+import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, AlertCircle, Loader2 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import Image from "next/image"
 import Link from "next/link"
@@ -19,11 +19,22 @@ export default function ClientCart() {
   const { items, removeItem, updateQuantity, subtotal, itemCount } = useCart()
   const [couponCode, setCouponCode] = useState("")
   const [couponError, setCouponError] = useState<string | null>(null)
+  const [loadingImages, setLoadingImages] = useState<Record<string, boolean>>({})
+  const [errorImages, setErrorImages] = useState<Record<string, boolean>>({})
   const router = useRouter()
 
   // Shipping cost calculation (free above Rs. 499)
   const shippingCost = subtotal >= 499 ? 0 : 49
   const total = subtotal + shippingCost
+
+  const handleImageLoad = (id: string) => {
+    setLoadingImages((prev) => ({ ...prev, [id]: false }))
+  }
+
+  const handleImageError = (id: string) => {
+    setErrorImages((prev) => ({ ...prev, [id]: true }))
+    setLoadingImages((prev) => ({ ...prev, [id]: false }))
+  }
 
   const handleApplyCoupon = () => {
     if (!couponCode) {
@@ -88,69 +99,91 @@ export default function ClientCart() {
                 <div className="p-6">
                   <h2 className="text-xl font-semibold mb-4">Cart Items</h2>
                   <div className="divide-y">
-                    {items.map((item) => (
-                      <div key={item.id} className="py-6 flex flex-col sm:flex-row gap-4">
-                        <div className="w-full sm:w-24 h-36 bg-gray-100 rounded-md relative flex-shrink-0">
-                          {item.imageData ? (
-                            <Image
-                              src={`data:image/png;base64,${item.imageData}`}
-                              alt={item.title}
-                              fill
-                              className="object-cover rounded-md"
-                            />
-                          ) : (
-                            <Image
-                              src="/placeholder.svg?height=600&width=400"
-                              alt={item.title}
-                              fill
-                              className="object-cover rounded-md"
-                            />
-                          )}
-                        </div>
+                    {items.map((item) => {
+                      // Set loading state for this image when component first renders
+                      if (loadingImages[item.id] === undefined && item.imageUrl) {
+                        setLoadingImages((prev) => ({ ...prev, [item.id]: true }))
+                      }
 
-                        <div className="flex-grow">
-                          <div className="flex justify-between">
-                            <div>
-                              <h3 className="font-medium">{item.title}</h3>
-                              <p className="text-sm text-gray-500">{item.category}</p>
-                              {item.size && <p className="text-sm text-gray-500">Size: {item.size}</p>}
-                            </div>
-                            <p className="font-semibold">Rs. {item.price}</p>
+                      return (
+                        <div key={item.id} className="py-6 flex flex-col sm:flex-row gap-6">
+                          {/* Poster Image Preview */}
+                          <div className="w-full sm:w-32 h-40 bg-gray-100 rounded-md relative flex-shrink-0 overflow-hidden">
+                            {item.imageUrl && !errorImages[item.id] ? (
+                              <>
+                                <Image
+                                  src={item.imageUrl || "/placeholder.svg"}
+                                  alt={item.title}
+                                  fill
+                                  className={`object-cover rounded-md transition-opacity duration-300 ${
+                                    loadingImages[item.id] ? "opacity-0" : "opacity-100"
+                                  }`}
+                                  onLoad={() => handleImageLoad(item.id)}
+                                  onError={() => handleImageError(item.id)}
+                                  sizes="(max-width: 768px) 100vw, 128px"
+                                />
+                                {loadingImages[item.id] && (
+                                  <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                                    <Loader2 className="h-6 w-6 text-gray-400 animate-spin" />
+                                  </div>
+                                )}
+                              </>
+                            ) : (
+                              <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                                <div className="text-gray-400 text-sm text-center p-2">
+                                  <ShoppingBag className="h-6 w-6 mx-auto mb-1" />
+                                  <span>{item.title}</span>
+                                </div>
+                              </div>
+                            )}
                           </div>
 
-                          <div className="flex justify-between items-center mt-4">
-                            <div className="flex items-center border rounded-md">
+                          <div className="flex-grow">
+                            <div className="flex justify-between">
+                              <div>
+                                <h3 className="font-medium text-lg">{item.title}</h3>
+                                <p className="text-sm text-gray-500 mt-1">{item.category}</p>
+                                {item.size && <p className="text-sm text-gray-500">Size: {item.size}</p>}
+                              </div>
+                              <p className="font-semibold">₹{item.price}</p>
+                            </div>
+
+                            <div className="flex justify-between items-center mt-6">
+                              <div className="flex items-center border rounded-md">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 rounded-none"
+                                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                  aria-label="Decrease quantity"
+                                >
+                                  <Minus className="h-3 w-3" />
+                                </Button>
+                                <span className="w-8 text-center">{item.quantity}</span>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 rounded-none"
+                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                  aria-label="Increase quantity"
+                                >
+                                  <Plus className="h-3 w-3" />
+                                </Button>
+                              </div>
                               <Button
                                 variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 rounded-none"
-                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                size="sm"
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 p-0 h-auto"
+                                onClick={() => removeItem(item.id)}
                               >
-                                <Minus className="h-3 w-3" />
-                              </Button>
-                              <span className="w-8 text-center">{item.quantity}</span>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 rounded-none"
-                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              >
-                                <Plus className="h-3 w-3" />
+                                <Trash2 className="h-4 w-4 mr-1" />
+                                Remove
                               </Button>
                             </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50 p-0 h-auto"
-                              onClick={() => removeItem(item.id)}
-                            >
-                              <Trash2 className="h-4 w-4 mr-1" />
-                              Remove
-                            </Button>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 </div>
               </div>
@@ -161,24 +194,56 @@ export default function ClientCart() {
               <div className="bg-white rounded-lg shadow-sm overflow-hidden sticky top-20">
                 <div className="p-6">
                   <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
+
+                  {/* Visual summary of cart items */}
+                  <div className="mb-4 pb-4 border-b">
+                    <div className="flex flex-wrap gap-2">
+                      {items.slice(0, 5).map((item) => (
+                        <div
+                          key={`thumb-${item.id}`}
+                          className="relative w-12 h-16 bg-gray-100 rounded overflow-hidden"
+                        >
+                          {item.imageUrl && !errorImages[item.id] ? (
+                            <Image
+                              src={item.imageUrl || "/placeholder.svg"}
+                              alt=""
+                              fill
+                              className="object-cover"
+                              sizes="48px"
+                            />
+                          ) : (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <ShoppingBag className="h-4 w-4 text-gray-400" />
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                      {items.length > 5 && (
+                        <div className="relative w-12 h-16 bg-gray-100 rounded flex items-center justify-center">
+                          <span className="text-xs font-medium text-gray-500">+{items.length - 5}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
                   <div className="space-y-4">
                     <div className="flex justify-between">
                       <span>Subtotal</span>
-                      <span>Rs. {subtotal.toFixed(2)}</span>
+                      <span>₹{subtotal.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Shipping</span>
-                      <span>{shippingCost === 0 ? "Free" : `Rs. ${shippingCost.toFixed(2)}`}</span>
+                      <span>{shippingCost === 0 ? "Free" : `₹${shippingCost.toFixed(2)}`}</span>
                     </div>
                     <div className="pt-4 border-t">
                       <div className="flex justify-between font-semibold">
                         <span>Total</span>
-                        <span>Rs. {total.toFixed(2)}</span>
+                        <span>₹{total.toFixed(2)}</span>
                       </div>
                       <p className="text-xs text-gray-500 mt-1">
                         {shippingCost === 0
                           ? "Free shipping applied"
-                          : `Add Rs. ${(499 - subtotal).toFixed(2)} more for free shipping`}
+                          : `Add ₹${(499 - subtotal).toFixed(2)} more for free shipping`}
                       </p>
                     </div>
 
@@ -200,7 +265,7 @@ export default function ClientCart() {
                       <Alert variant="destructive" className="mt-4">
                         <AlertCircle className="h-4 w-4" />
                         <AlertDescription>
-                          Minimum order value is Rs. {MINIMUM_ORDER_VALUE}. Please add Rs.{" "}
+                          Minimum order value is ₹{MINIMUM_ORDER_VALUE}. Please add ₹{" "}
                           {(MINIMUM_ORDER_VALUE - subtotal).toFixed(2)} more to proceed.
                         </AlertDescription>
                       </Alert>

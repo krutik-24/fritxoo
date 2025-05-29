@@ -9,7 +9,7 @@ import Footer from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Link from "next/link"
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft } from "lucide-react"
 
 // Sample data for categories
 const CATEGORIES = {
@@ -49,12 +49,13 @@ export default function CategoryPage() {
 
       console.log("Filtered posters for category:", filtered)
 
-      // Additional filtering to ensure we only show posters with valid images
+      // Less restrictive filtering - only exclude obvious placeholders
       filtered = filtered.filter((poster) => {
         const hasValidImage =
           poster.imageUrl &&
           poster.imageUrl !== "/placeholder.svg" &&
-          poster.imageUrl.trim() !== ""
+          poster.imageUrl.trim() !== "" &&
+          !poster.imageUrl.includes("placeholder")
 
         console.log(`Poster ${poster.title}: hasValidImage=${hasValidImage}, imageUrl=${poster.imageUrl}`)
         return hasValidImage

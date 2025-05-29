@@ -57,7 +57,7 @@ export default function PosterCard({
       title: `${title} (${selectedSize})`,
       price: currentPrice,
       category,
-      imageUrl,
+      imageUrl, // Make sure imageUrl is passed to the cart
       size: selectedSize,
     })
 
