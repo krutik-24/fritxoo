@@ -30,6 +30,12 @@ export default function Navbar() {
                 <Link href="/category/movies" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                   Movies
                 </Link>
+                <Link
+                  href="/category/split-posters"
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  Split Posters
+                </Link>
                 <Link href="/category/sports" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                   Sports
                 </Link>
@@ -77,6 +83,12 @@ export default function Navbar() {
           <nav className="flex flex-col space-y-4">
             <Link href="/category/cars" className="text-sm font-medium text-gray-700 hover:text-black">
               Cars
+            </Link>
+            <Link href="/category/movies" className="text-sm font-medium text-gray-700 hover:text-black">
+              Movies
+            </Link>
+            <Link href="/category/split-posters" className="text-sm font-medium text-gray-700 hover:text-black">
+              Split Posters
             </Link>
             <Link href="/custom-posters" className="text-sm font-medium text-gray-700 hover:text-black">
               Custom Posters

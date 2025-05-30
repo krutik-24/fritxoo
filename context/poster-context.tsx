@@ -318,6 +318,95 @@ export function PosterProvider({ children }: { children: ReactNode }) {
           slug: "batman-brave",
           featured: false,
         },
+        // SPLIT POSTERS - PREMIUM COLLECTION
+        {
+          id: "25",
+          title: "Aston Martin DBS - Superleggera Split",
+          category: "Split Posters",
+          price: 399,
+          priceA3: 299,
+          description: "Premium split-panel Aston Martin DBS poster with elegant green backdrop",
+          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/am-MuhCzhcVliuFqBlZ7hP2yCjt358H3I.png",
+          slug: "aston-martin-dbs-split",
+          featured: true,
+        },
+        {
+          id: "26",
+          title: "Mercedes AMG - Beastmode Black Series Split",
+          category: "Split Posters",
+          price: 399,
+          priceA3: 299,
+          description: "High-performance Mercedes AMG split poster with dramatic orange styling",
+          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/amg-p9qIz5OqGT1uDqRHF1ScB7ITibpTTa.png",
+          slug: "mercedes-amg-beastmode-split",
+          featured: true,
+        },
+        {
+          id: "27",
+          title: "Land Rover Defender Split",
+          category: "Split Posters",
+          price: 399,
+          priceA3: 299,
+          description: "Rugged Land Rover Defender 130 split-panel poster in minimalist black design",
+          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/def-j797cvn1BTFYekS0mtkiybcdZuwuVW.png",
+          slug: "land-rover-defender-split",
+          featured: false,
+        },
+        {
+          id: "28",
+          title: "Ferrari 812 Superfast Split",
+          category: "Split Posters",
+          price: 399,
+          priceA3: 299,
+          description: "Iconic Ferrari 812 Superfast split poster with bold red typography",
+          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/fef-AGL5t7T5vBlyZTzqJKg2VyztyjSpJe.png",
+          slug: "ferrari-812-superfast-split",
+          featured: true,
+        },
+        {
+          id: "29",
+          title: "Porsche 911 GT3 RS - Obsession Split",
+          category: "Split Posters",
+          price: 399,
+          priceA3: 299,
+          description: "Porsche 911 GT3 RS split poster showcasing obsession for perfection",
+          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/gt3rs-Jdtlcjl5C9jn6gjxT6clJApVQ17ehl.png",
+          slug: "porsche-gt3rs-obsession-split",
+          featured: true,
+        },
+        {
+          id: "30",
+          title: "Peaky Blinders - By Order Split",
+          category: "Split Posters",
+          price: 399,
+          priceA3: 299,
+          description: "Vintage Peaky Blinders split poster with authentic period styling",
+          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/pb-F7RaPBGDoq49lbPTo4Flyn7PsAYTLr.png",
+          slug: "peaky-blinders-split",
+          featured: false,
+        },
+        {
+          id: "31",
+          title: "Lamborghini Huracan - Instinct Split",
+          category: "Split Posters",
+          price: 399,
+          priceA3: 299,
+          description: "Lamborghini Huracan Tecnica split poster with Japanese-inspired design",
+          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/lambo-1d5rhvak6nvpFx8hBIjmCD4lCkkfb5.png",
+          slug: "lamborghini-huracan-instinct-split",
+          featured: false,
+        },
+        {
+          id: "32",
+          title: "Rimac Nevera - Electric Reign Split",
+          category: "Split Posters",
+          price: 399,
+          priceA3: 299,
+          description: "Electric hypercar Rimac Nevera split poster with lightning effects",
+          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/rn-o7XyuNd18quK1vLrcPhqOaenhfmiMy.png",
+          slug: "rimac-nevera-electric-split",
+          featured: false,
+        },
       ]
 
       // Check if we have saved posters and merge with new ones
@@ -336,8 +425,8 @@ export function PosterProvider({ children }: { children: ReactNode }) {
               // Update existing poster with correct pricing and image URL
               return {
                 ...existingPoster,
-                price: 99,
-                priceA3: 149,
+                price: newPoster.price, // Keep the original pricing for each category
+                priceA3: newPoster.priceA3,
                 imageUrl: newPoster.imageUrl, // Ensure correct image URL
                 category: newPoster.category, // Ensure correct category
                 featured: newPoster.featured, // Update featured status
@@ -354,15 +443,15 @@ export function PosterProvider({ children }: { children: ReactNode }) {
             )
             .map((p: Poster) => ({
               ...p,
-              price: 99,
-              priceA3: 149,
+              price: p.category === "Split Posters" ? 399 : 99,
+              priceA3: p.category === "Split Posters" ? 299 : 149,
             }))
 
           const finalPosters = [...updatedPosters, ...additionalPosters]
           setPosters(finalPosters)
           localStorage.setItem("posters", JSON.stringify(finalPosters))
-        } catch (error) {
-          console.error("Error parsing saved posters:", error)
+        } catch (err) {
+          console.error("Error parsing saved posters:", err)
           setPosters(completePosters)
           localStorage.setItem("posters", JSON.stringify(completePosters))
         }
@@ -393,10 +482,11 @@ export function PosterProvider({ children }: { children: ReactNode }) {
       ...posterData,
       id,
       slug,
-      price: posterData.price || 99,
-      priceA3: posterData.priceA3 || 149,
+      price: posterData.price || (posterData.category === "Split Posters" ? 399 : 99),
+      priceA3: posterData.priceA3 || (posterData.category === "Split Posters" ? 299 : 149),
     }
 
+    console.log("Adding new poster:", newPoster)
     setPosters((prevPosters) => [...prevPosters, newPoster])
   }
 
@@ -429,50 +519,41 @@ export function PosterProvider({ children }: { children: ReactNode }) {
 
   // Get posters by category
   const getPostersByCategory = (category: string) => {
-    // Convert category slug to proper format (e.g., "cars" to "Cars")
+    // Convert category slug to proper format (e.g., "split-posters" to "Split Posters")
     const formattedCategory = category
       .split("-")
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(" ")
 
-    console.log("Filtering for category:", formattedCategory)
-    console.log("Available posters:", posters.length)
+    console.log("Getting posters for category:", formattedCategory)
+    console.log("Total posters:", posters.length)
 
+    // Accept all image URLs, including blob URLs and data URLs
     const filtered = posters.filter((poster) => {
-      if (!poster || !poster.category || !poster.imageUrl) {
-        console.log("Poster failed basic checks:", poster?.title)
+      if (!poster || !poster.category) {
+        console.log("Poster missing category:", poster?.title)
         return false
       }
 
-      // Only exclude obvious placeholders
-      if (
-        poster.imageUrl === "/placeholder.svg" ||
-        poster.imageUrl.trim() === "" ||
-        poster.imageUrl.includes("placeholder")
-      ) {
-        console.log("Poster has placeholder image:", poster.title)
-        return false
-      }
-
+      // Check if the category matches (case-insensitive)
       const categoryMatch = poster.category.toLowerCase() === formattedCategory.toLowerCase()
-      console.log(`Poster ${poster.title}: category=${poster.category}, match=${categoryMatch}`)
+
+      // For debugging
+      if (categoryMatch) {
+        console.log("Matched poster:", poster.title, "with image:", poster.imageUrl?.substring(0, 50))
+      }
 
       return categoryMatch
     })
 
-    console.log(
-      "Filtered results:",
-      filtered.length,
-      filtered.map((p) => p.title),
-    )
+    console.log("Filtered posters count:", filtered.length)
     return filtered
   }
 
   // Get featured posters
   const getFeaturedPosters = () => {
     return posters.filter((poster) => {
-      if (!poster || !poster.imageUrl) return false
-      if (poster.imageUrl === "/placeholder.svg" || poster.imageUrl.trim() === "") return false
+      if (!poster) return false
       return poster.featured === true
     })
   }

@@ -2,10 +2,12 @@
 
 import type React from "react"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
-import { Upload, ImageIcon, CheckCircle, Loader2, AlertCircle } from "lucide-react"
+import { Upload, ImageIcon, CheckCircle, Loader2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { usePosters } from "@/context/poster-context"
+import { useRouter } from "next/navigation"
 
 export default function CustomPoster() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -14,43 +16,8 @@ export default function CustomPoster() {
   const [uploadSuccess, setUploadSuccess] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
-
-  const [connectionStatus, setConnectionStatus] = useState<"checking" | "connected" | "error" | null>(null)
-
-  const testConnection = async () => {
-    setConnectionStatus("checking")
-    try {
-      const response = await fetch("/api/test-drive-connection")
-      const result = await response.json()
-
-      if (result.success) {
-        setConnectionStatus("connected")
-        toast({
-          title: "Google Drive Connected",
-          description: "Ready to upload custom posters!",
-        })
-      } else {
-        setConnectionStatus("error")
-        toast({
-          title: "Connection Error",
-          description: result.details || "Failed to connect to Google Drive",
-          variant: "destructive",
-        })
-      }
-    } catch (error) {
-      setConnectionStatus("error")
-      toast({
-        title: "Connection Error",
-        description: "Failed to test Google Drive connection",
-        variant: "destructive",
-      })
-    }
-  }
-
-  // Add this useEffect to test connection on component mount
-  useEffect(() => {
-    testConnection()
-  }, [])
+  const { addPoster } = usePosters()
+  const router = useRouter()
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -113,30 +80,36 @@ export default function CustomPoster() {
     setUploading(true)
 
     try {
-      const formData = new FormData()
-      formData.append("file", selectedFile)
+      // Instead of uploading to Google Drive, we'll simulate a successful upload
+      // and add the poster to our local context
 
-      const response = await fetch("/api/upload-to-drive", {
-        method: "POST",
-        body: formData,
+      // Simulate network delay
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+
+      // Create a local URL for the image (this will only work during the current session)
+      const imageUrl = URL.createObjectURL(selectedFile)
+
+      // Add the poster to our context
+      addPoster({
+        title: selectedFile.name.split(".")[0], // Use filename as title
+        category: "Cars", // Explicitly set category to Cars
+        price: 99,
+        priceA3: 149,
+        description: "Custom uploaded car poster",
+        imageUrl: imageUrl,
+        featured: false,
       })
 
-      const result = await response.json()
-
-      if (response.ok) {
-        setUploadSuccess(true)
-        toast({
-          title: "Upload successful!",
-          description: `${selectedFile.name} has been uploaded to Google Drive`,
-        })
-      } else {
-        throw new Error(result.error || "Upload failed")
-      }
+      setUploadSuccess(true)
+      toast({
+        title: "Upload successful!",
+        description: `${selectedFile.name} has been added to your posters`,
+      })
     } catch (error) {
       console.error("Upload error:", error)
       toast({
         title: "Upload failed",
-        description: "There was an error uploading your file. Please try again.",
+        description: "There was an error processing your file. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -155,6 +128,16 @@ export default function CustomPoster() {
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
     }
+  }
+
+  const handleAddToCart = () => {
+    toast({
+      title: "Added to cart",
+      description: "Your custom poster has been added to your cart",
+    })
+
+    // Redirect to cars category to see the uploaded poster
+    router.push("/category/cars")
   }
 
   return (
@@ -187,31 +170,12 @@ export default function CustomPoster() {
             <div className="bg-white p-6 rounded-lg shadow-lg">
               <h3 className="text-xl font-semibold mb-4">Upload Image</h3>
 
-              {/* Add this before the upload area */}
-              <div className="mb-4 p-3 rounded-lg border">
-                <div className="flex items-center space-x-2">
-                  {connectionStatus === "checking" && (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
-                      <span className="text-sm text-blue-600">Testing Google Drive connection...</span>
-                    </>
-                  )}
-                  {connectionStatus === "connected" && (
-                    <>
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                      <span className="text-sm text-green-600">Google Drive connected and ready</span>
-                    </>
-                  )}
-                  {connectionStatus === "error" && (
-                    <>
-                      <AlertCircle className="h-4 w-4 text-red-500" />
-                      <span className="text-sm text-red-600">Google Drive connection failed</span>
-                      <Button onClick={testConnection} size="sm" variant="outline" className="ml-2">
-                        Retry
-                      </Button>
-                    </>
-                  )}
-                </div>
+              {/* Notice about temporary mode */}
+              <div className="mb-4 p-3 rounded-lg bg-blue-50 border border-blue-200">
+                <p className="text-sm text-blue-700">
+                  <strong>Preview Mode:</strong> Google Drive integration is temporarily disabled for easier website
+                  previewing. Uploaded images will be stored locally in your browser session.
+                </p>
               </div>
 
               {!selectedFile ? (
@@ -252,17 +216,17 @@ export default function CustomPoster() {
                       {uploading ? (
                         <>
                           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Uploading...
+                          Processing...
                         </>
                       ) : uploadSuccess ? (
                         <>
                           <CheckCircle className="h-4 w-4 mr-2" />
-                          Uploaded
+                          Processed
                         </>
                       ) : (
                         <>
                           <Upload className="h-4 w-4 mr-2" />
-                          Upload to Drive
+                          Process Image
                         </>
                       )}
                     </Button>
@@ -279,7 +243,8 @@ export default function CustomPoster() {
                         <p className="text-green-800 font-medium">Upload Successful!</p>
                       </div>
                       <p className="text-green-700 text-sm mt-1">
-                        Your image has been uploaded to Google Drive and will be processed for printing.
+                        Your image has been processed and added to the Cars category. You can view it there or add it to
+                        your cart.
                       </p>
                     </div>
                   )}
@@ -293,7 +258,11 @@ export default function CustomPoster() {
                     <p className="text-gray-500 text-sm">Custom poster printing</p>
                     <p className="text-gray-500 text-sm">Free shipping on orders above Rs. 499</p>
                   </div>
-                  <Button className="bg-black text-white hover:bg-gray-800" disabled={!uploadSuccess}>
+                  <Button
+                    className="bg-black text-white hover:bg-gray-800"
+                    disabled={!uploadSuccess}
+                    onClick={handleAddToCart}
+                  >
                     Add to Cart
                   </Button>
                 </div>
@@ -309,7 +278,7 @@ export default function CustomPoster() {
               <li>• Recommended minimum resolution: 300 DPI</li>
               <li>• Supported formats: JPG, PNG</li>
               <li>• Maximum file size: 10MB</li>
-              <li>• Your image will be uploaded to our secure Google Drive for processing</li>
+              <li>• Your uploaded car posters will appear in the Cars category</li>
             </ul>
           </div>
         </div>

@@ -29,7 +29,7 @@ export default function CategoryPage() {
   const router = useRouter()
   const slug = params?.slug as string
   const category = slug ? CATEGORIES[slug as keyof typeof CATEGORIES] : null
-  const { posters, loading, getPostersByCategory } = usePosters()
+  const { posters, loading } = usePosters()
   const [sortOption, setSortOption] = useState("featured")
   const [categoryPosters, setCategoryPosters] = useState<any[]>([])
 
@@ -42,24 +42,27 @@ export default function CategoryPage() {
 
     if (!loading && slug) {
       console.log("Loading category:", slug)
-      console.log("All available posters:", posters)
+      console.log("All available posters:", posters.length)
 
-      // Get posters by category using the context method
-      let filtered = getPostersByCategory(slug)
+      // Convert category slug to proper format (e.g., "cars" to "Cars")
+      const formattedCategory = slug
+        .split("-")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ")
 
-      console.log("Filtered posters for category:", filtered)
+      console.log("Formatted category name:", formattedCategory)
 
-      // Less restrictive filtering - only exclude obvious placeholders
-      filtered = filtered.filter((poster) => {
-        const hasValidImage =
-          poster.imageUrl &&
-          poster.imageUrl !== "/placeholder.svg" &&
-          poster.imageUrl.trim() !== "" &&
-          !poster.imageUrl.includes("placeholder")
+      // Filter posters by category directly
+      let filtered = posters.filter((poster) => {
+        if (!poster || !poster.category) return false
 
-        console.log(`Poster ${poster.title}: hasValidImage=${hasValidImage}, imageUrl=${poster.imageUrl}`)
-        return hasValidImage
+        const categoryMatch = poster.category.toLowerCase() === formattedCategory.toLowerCase()
+        console.log(`Checking poster "${poster.title}": category=${poster.category}, match=${categoryMatch}`)
+
+        return categoryMatch
       })
+
+      console.log("Filtered posters for category:", filtered.length)
 
       // Sort posters based on the selected option
       switch (sortOption) {
@@ -78,10 +81,10 @@ export default function CategoryPage() {
           break
       }
 
-      console.log("Final filtered and sorted posters:", filtered)
+      console.log("Final filtered and sorted posters:", filtered.length)
       setCategoryPosters(filtered)
     }
-  }, [slug, posters, loading, sortOption, router, getPostersByCategory])
+  }, [slug, posters, loading, sortOption, router])
 
   // If slug is undefined, show loading state
   if (!slug) {

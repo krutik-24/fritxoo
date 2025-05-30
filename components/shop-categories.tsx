@@ -5,6 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
+import { useEffect, useState } from "react"
 
 // Define the categories with their details
 const categories = [
@@ -66,6 +67,8 @@ const categories = [
 
 export default function ShopCategories() {
   const { posters, loading } = usePosters()
+  const [posterCounts, setPosterCounts] = useState<Record<string, number>>({})
+  const [categoriesWithPosters, setCategoriesWithPosters] = useState<typeof categories>([])
 
   // Function to map category names to URL slugs
   function getCategorySlug(categoryName: string): string {
@@ -85,19 +88,30 @@ export default function ShopCategories() {
     return categoryMap[categoryName] || categoryName.toLowerCase().replace(/\s+/g, "-")
   }
 
-  // Count posters in each category
-  const posterCounts: Record<string, number> = {}
-  if (!loading && posters) {
-    posters.forEach((poster) => {
-      if (poster && poster.category) {
-        const slug = getCategorySlug(poster.category)
-        posterCounts[slug] = (posterCounts[slug] || 0) + 1
-      }
-    })
-  }
+  useEffect(() => {
+    if (!loading && posters) {
+      // Count posters in each category
+      const counts: Record<string, number> = {}
 
-  // Filter categories that have posters
-  const categoriesWithPosters = categories.filter((category) => posterCounts[category.slug] > 0)
+      posters.forEach((poster) => {
+        if (poster && poster.category) {
+          const slug = getCategorySlug(poster.category)
+          counts[slug] = (counts[slug] || 0) + 1
+        }
+      })
+
+      console.log("Category counts:", counts)
+      setPosterCounts(counts)
+
+      // Filter categories that have posters
+      const withPosters = categories.filter((category) => counts[category.slug] > 0)
+      console.log(
+        "Categories with posters:",
+        withPosters.map((c) => c.name),
+      )
+      setCategoriesWithPosters(withPosters)
+    }
+  }, [posters, loading])
 
   if (loading) {
     return (
