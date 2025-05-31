@@ -80,10 +80,7 @@ export default function CustomPoster() {
     setUploading(true)
 
     try {
-      // Instead of uploading to Google Drive, we'll simulate a successful upload
-      // and add the poster to our local context
-
-      // Simulate network delay
+      // Simulate processing delay
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
       // Create a local URL for the image (this will only work during the current session)
@@ -92,10 +89,10 @@ export default function CustomPoster() {
       // Add the poster to our context
       addPoster({
         title: selectedFile.name.split(".")[0], // Use filename as title
-        category: "Cars", // Explicitly set category to Cars
+        category: "Cars", // Default category
         price: 99,
         priceA3: 149,
-        description: "Custom uploaded car poster",
+        description: "Custom uploaded poster",
         imageUrl: imageUrl,
         featured: false,
       })
@@ -169,14 +166,6 @@ export default function CustomPoster() {
             {/* Upload Section */}
             <div className="bg-white p-6 rounded-lg shadow-lg">
               <h3 className="text-xl font-semibold mb-4">Upload Image</h3>
-
-              {/* Notice about temporary mode */}
-              <div className="mb-4 p-3 rounded-lg bg-blue-50 border border-blue-200">
-                <p className="text-sm text-blue-700">
-                  <strong>Preview Mode:</strong> Google Drive integration is temporarily disabled for easier website
-                  previewing. Uploaded images will be stored locally in your browser session.
-                </p>
-              </div>
 
               {!selectedFile ? (
                 <div
@@ -278,7 +267,7 @@ export default function CustomPoster() {
               <li>• Recommended minimum resolution: 300 DPI</li>
               <li>• Supported formats: JPG, PNG</li>
               <li>• Maximum file size: 10MB</li>
-              <li>• Your uploaded car posters will appear in the Cars category</li>
+              <li>• Your uploaded posters will appear in the Cars category</li>
             </ul>
           </div>
         </div>

@@ -42,9 +42,9 @@ export function PosterProvider({ children }: { children: ReactNode }) {
       // Simulate API delay
       await new Promise((resolve) => setTimeout(resolve, 500))
 
-      // Complete collection of all posters
+      // Complete collection of all posters with updated pricing
       const completePosters = [
-        // CAR POSTERS
+        // CAR POSTERS - A4: ₹99, A3: ₹149
         {
           id: "1",
           title: "Ferrari 250 GTO",
@@ -262,7 +262,7 @@ export function PosterProvider({ children }: { children: ReactNode }) {
           slug: "legend-reborn-toyota-supra",
           featured: false,
         },
-        // MOVIE POSTERS
+        // MOVIE POSTERS - A4: ₹99, A3: ₹149
         {
           id: "20",
           title: "The OG - They Call Him OG",
@@ -318,13 +318,13 @@ export function PosterProvider({ children }: { children: ReactNode }) {
           slug: "batman-brave",
           featured: false,
         },
-        // SPLIT POSTERS - PREMIUM COLLECTION
+        // SPLIT POSTERS - A4: ₹299, A3: ₹399 (Updated pricing)
         {
           id: "25",
           title: "Aston Martin DBS - Superleggera Split",
           category: "Split Posters",
-          price: 399,
-          priceA3: 299,
+          price: 299,
+          priceA3: 399,
           description: "Premium split-panel Aston Martin DBS poster with elegant green backdrop",
           imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/am-MuhCzhcVliuFqBlZ7hP2yCjt358H3I.png",
           slug: "aston-martin-dbs-split",
@@ -334,8 +334,8 @@ export function PosterProvider({ children }: { children: ReactNode }) {
           id: "26",
           title: "Mercedes AMG - Beastmode Black Series Split",
           category: "Split Posters",
-          price: 399,
-          priceA3: 299,
+          price: 299,
+          priceA3: 399,
           description: "High-performance Mercedes AMG split poster with dramatic orange styling",
           imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/amg-p9qIz5OqGT1uDqRHF1ScB7ITibpTTa.png",
           slug: "mercedes-amg-beastmode-split",
@@ -345,8 +345,8 @@ export function PosterProvider({ children }: { children: ReactNode }) {
           id: "27",
           title: "Land Rover Defender Split",
           category: "Split Posters",
-          price: 399,
-          priceA3: 299,
+          price: 299,
+          priceA3: 399,
           description: "Rugged Land Rover Defender 130 split-panel poster in minimalist black design",
           imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/def-j797cvn1BTFYekS0mtkiybcdZuwuVW.png",
           slug: "land-rover-defender-split",
@@ -356,8 +356,8 @@ export function PosterProvider({ children }: { children: ReactNode }) {
           id: "28",
           title: "Ferrari 812 Superfast Split",
           category: "Split Posters",
-          price: 399,
-          priceA3: 299,
+          price: 299,
+          priceA3: 399,
           description: "Iconic Ferrari 812 Superfast split poster with bold red typography",
           imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/fef-AGL5t7T5vBlyZTzqJKg2VyztyjSpJe.png",
           slug: "ferrari-812-superfast-split",
@@ -367,8 +367,8 @@ export function PosterProvider({ children }: { children: ReactNode }) {
           id: "29",
           title: "Porsche 911 GT3 RS - Obsession Split",
           category: "Split Posters",
-          price: 399,
-          priceA3: 299,
+          price: 299,
+          priceA3: 399,
           description: "Porsche 911 GT3 RS split poster showcasing obsession for perfection",
           imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/gt3rs-Jdtlcjl5C9jn6gjxT6clJApVQ17ehl.png",
           slug: "porsche-gt3rs-obsession-split",
@@ -378,8 +378,8 @@ export function PosterProvider({ children }: { children: ReactNode }) {
           id: "30",
           title: "Peaky Blinders - By Order Split",
           category: "Split Posters",
-          price: 399,
-          priceA3: 299,
+          price: 299,
+          priceA3: 399,
           description: "Vintage Peaky Blinders split poster with authentic period styling",
           imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/pb-F7RaPBGDoq49lbPTo4Flyn7PsAYTLr.png",
           slug: "peaky-blinders-split",
@@ -389,8 +389,8 @@ export function PosterProvider({ children }: { children: ReactNode }) {
           id: "31",
           title: "Lamborghini Huracan - Instinct Split",
           category: "Split Posters",
-          price: 399,
-          priceA3: 299,
+          price: 299,
+          priceA3: 399,
           description: "Lamborghini Huracan Tecnica split poster with Japanese-inspired design",
           imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/lambo-1d5rhvak6nvpFx8hBIjmCD4lCkkfb5.png",
           slug: "lamborghini-huracan-instinct-split",
@@ -400,8 +400,8 @@ export function PosterProvider({ children }: { children: ReactNode }) {
           id: "32",
           title: "Rimac Nevera - Electric Reign Split",
           category: "Split Posters",
-          price: 399,
-          priceA3: 299,
+          price: 299,
+          priceA3: 399,
           description: "Electric hypercar Rimac Nevera split poster with lightning effects",
           imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/rn-o7XyuNd18quK1vLrcPhqOaenhfmiMy.png",
           slug: "rimac-nevera-electric-split",
@@ -425,7 +425,7 @@ export function PosterProvider({ children }: { children: ReactNode }) {
               // Update existing poster with correct pricing and image URL
               return {
                 ...existingPoster,
-                price: newPoster.price, // Keep the original pricing for each category
+                price: newPoster.price, // Apply new pricing structure
                 priceA3: newPoster.priceA3,
                 imageUrl: newPoster.imageUrl, // Ensure correct image URL
                 category: newPoster.category, // Ensure correct category
@@ -443,8 +443,9 @@ export function PosterProvider({ children }: { children: ReactNode }) {
             )
             .map((p: Poster) => ({
               ...p,
-              price: p.category === "Split Posters" ? 399 : 99,
-              priceA3: p.category === "Split Posters" ? 299 : 149,
+              // Apply pricing based on category
+              price: p.category === "Split Posters" ? 299 : 99,
+              priceA3: p.category === "Split Posters" ? 399 : 149,
             }))
 
           const finalPosters = [...updatedPosters, ...additionalPosters]
@@ -482,8 +483,8 @@ export function PosterProvider({ children }: { children: ReactNode }) {
       ...posterData,
       id,
       slug,
-      price: posterData.price || (posterData.category === "Split Posters" ? 399 : 99),
-      priceA3: posterData.priceA3 || (posterData.category === "Split Posters" ? 299 : 149),
+      price: posterData.price || (posterData.category === "Split Posters" ? 299 : 99),
+      priceA3: posterData.priceA3 || (posterData.category === "Split Posters" ? 399 : 149),
     }
 
     console.log("Adding new poster:", newPoster)
@@ -519,7 +520,7 @@ export function PosterProvider({ children }: { children: ReactNode }) {
 
   // Get posters by category
   const getPostersByCategory = (category: string) => {
-    // Convert category slug to proper format (e.g., "split-posters" to "Split Posters")
+    // Convert category slug to proper format (e.g., "cars" to "Cars")
     const formattedCategory = category
       .split("-")
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))

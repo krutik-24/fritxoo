@@ -18,6 +18,9 @@ export default function Navbar() {
         <Logo />
 
         <nav className="hidden md:flex items-center space-x-6">
+          <Link href="/split-posters" className="text-sm font-medium text-gray-700 hover:text-black">
+            Split Posters
+          </Link>
           <div className="relative group">
             <button className="flex items-center text-sm font-medium text-gray-700 hover:text-black">
               Shop Posters <ChevronDown className="ml-1 h-4 w-4" />
@@ -29,12 +32,6 @@ export default function Navbar() {
                 </Link>
                 <Link href="/category/movies" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                   Movies
-                </Link>
-                <Link
-                  href="/category/split-posters"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  Split Posters
                 </Link>
                 <Link href="/category/sports" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                   Sports
@@ -81,14 +78,14 @@ export default function Navbar() {
             <Input placeholder="Search" className="pl-8 h-9 w-full rounded-md border border-gray-300" />
           </div>
           <nav className="flex flex-col space-y-4">
+            <Link href="/split-posters" className="text-sm font-medium text-gray-700 hover:text-black">
+              Split Posters
+            </Link>
             <Link href="/category/cars" className="text-sm font-medium text-gray-700 hover:text-black">
               Cars
             </Link>
             <Link href="/category/movies" className="text-sm font-medium text-gray-700 hover:text-black">
               Movies
-            </Link>
-            <Link href="/category/split-posters" className="text-sm font-medium text-gray-700 hover:text-black">
-              Split Posters
             </Link>
             <Link href="/custom-posters" className="text-sm font-medium text-gray-700 hover:text-black">
               Custom Posters

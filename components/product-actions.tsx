@@ -11,31 +11,42 @@ interface ProductActionsProps {
   id: string
   title: string
   price: number
+  priceA3: number
   category: string
   description?: string
   imageUrl: string
 }
 
-export default function ProductActions({ id, title, price, category, description, imageUrl }: ProductActionsProps) {
+export default function ProductActions({
+  id,
+  title,
+  price,
+  priceA3,
+  category,
+  description,
+  imageUrl,
+}: ProductActionsProps) {
   const [size, setSize] = useState("A4")
-  const [material, setMaterial] = useState("Matte Paper")
   const { addItem } = useCart()
   const { toast } = useToast()
+
+  // Calculate price based on size
+  const currentPrice = size === "A3" ? priceA3 : price
 
   const handleAddToCart = () => {
     addItem({
       id,
       title,
-      price,
+      price: currentPrice,
       category,
       imageUrl,
       size,
-      material,
+      material: "Premium Paper", // Default material since buttons are removed
     })
 
     toast({
       title: "Added to cart",
-      description: `${title} has been added to your cart.`,
+      description: `${title} (${size}) has been added to your cart.`,
     })
   }
 
@@ -46,7 +57,7 @@ export default function ProductActions({ id, title, price, category, description
         <p className="text-gray-500 mt-1">{category}</p>
       </div>
 
-      <div className="text-2xl font-bold">₹{price.toFixed(2)}</div>
+      <div className="text-2xl font-bold">₹{currentPrice}</div>
 
       {description && <p className="text-gray-700">{description}</p>}
 
@@ -54,31 +65,17 @@ export default function ProductActions({ id, title, price, category, description
         <div>
           <h3 className="font-medium mb-2">Size</h3>
           <RadioGroup value={size} onValueChange={setSize} className="flex flex-wrap gap-3">
-            {["A4", "A3", "A2"].map((sizeOption) => (
+            {["A4", "A3"].map((sizeOption) => (
               <div key={sizeOption}>
                 <RadioGroupItem value={sizeOption} id={`size-${sizeOption}`} className="peer hidden" />
                 <Label
                   htmlFor={`size-${sizeOption}`}
-                  className="flex min-w-[60px] cursor-pointer items-center justify-center rounded-md border border-gray-200 bg-white px-3 py-2 text-center text-sm font-medium peer-data-[state=checked]:border-black peer-data-[state=checked]:bg-black peer-data-[state=checked]:text-white"
+                  className="flex min-w-[80px] cursor-pointer items-center justify-center rounded-md border border-gray-200 bg-white px-4 py-3 text-center text-sm font-medium peer-data-[state=checked]:border-black peer-data-[state=checked]:bg-black peer-data-[state=checked]:text-white transition-all"
                 >
-                  {sizeOption}
-                </Label>
-              </div>
-            ))}
-          </RadioGroup>
-        </div>
-
-        <div>
-          <h3 className="font-medium mb-2">Material</h3>
-          <RadioGroup value={material} onValueChange={setMaterial} className="flex flex-wrap gap-3">
-            {["Matte Paper", "Glossy Paper", "Canvas"].map((materialOption) => (
-              <div key={materialOption}>
-                <RadioGroupItem value={materialOption} id={`material-${materialOption}`} className="peer hidden" />
-                <Label
-                  htmlFor={`material-${materialOption}`}
-                  className="flex cursor-pointer items-center justify-center rounded-md border border-gray-200 bg-white px-3 py-2 text-center text-sm font-medium peer-data-[state=checked]:border-black peer-data-[state=checked]:bg-black peer-data-[state=checked]:text-white"
-                >
-                  {materialOption}
+                  <div className="flex flex-col items-center">
+                    <span className="font-semibold">{sizeOption}</span>
+                    <span className="text-xs opacity-75">₹{sizeOption === "A3" ? priceA3 : price}</span>
+                  </div>
                 </Label>
               </div>
             ))}
@@ -87,13 +84,14 @@ export default function ProductActions({ id, title, price, category, description
       </div>
 
       <Button onClick={handleAddToCart} className="w-full">
-        Add to Cart
+        Add to Cart - ₹{currentPrice}
       </Button>
 
       <div className="text-sm text-gray-500 space-y-2">
-        <p>• Free shipping on orders over Rs. 999</p>
+        <p>• Free shipping on orders over ₹999</p>
         <p>• Printed on premium quality paper</p>
         <p>• Ships within 2-3 business days</p>
+        <p>• High-resolution printing guaranteed</p>
       </div>
     </div>
   )
