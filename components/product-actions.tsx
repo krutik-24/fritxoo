@@ -30,13 +30,17 @@ export default function ProductActions({
   const { addItem } = useCart()
   const { toast } = useToast()
 
+  // Set correct pricing based on category
+  const basePrice = category === "Split Posters" ? 299 : 99
+  const a3Price = category === "Split Posters" ? 399 : 149
+
   // Calculate price based on size
-  const currentPrice = size === "A3" ? priceA3 : price
+  const currentPrice = size === "A3" ? a3Price : basePrice
 
   const handleAddToCart = () => {
     addItem({
-      id,
-      title,
+      id: `${id}-${size}`,
+      title: `${title} (${size})`,
       price: currentPrice,
       category,
       imageUrl,
@@ -55,6 +59,7 @@ export default function ProductActions({
       <div>
         <h1 className="text-3xl font-bold">{title}</h1>
         <p className="text-gray-500 mt-1">{category}</p>
+        {category === "Split Posters" && <p className="text-sm text-yellow-600 mt-1 font-medium">Premium Collection</p>}
       </div>
 
       <div className="text-2xl font-bold">₹{currentPrice}</div>
@@ -74,7 +79,7 @@ export default function ProductActions({
                 >
                   <div className="flex flex-col items-center">
                     <span className="font-semibold">{sizeOption}</span>
-                    <span className="text-xs opacity-75">₹{sizeOption === "A3" ? priceA3 : price}</span>
+                    <span className="text-xs opacity-75">₹{sizeOption === "A3" ? a3Price : basePrice}</span>
                   </div>
                 </Label>
               </div>
@@ -88,10 +93,11 @@ export default function ProductActions({
       </Button>
 
       <div className="text-sm text-gray-500 space-y-2">
-        <p>• Free shipping on orders over ₹999</p>
+        <p>• Free shipping on orders over ₹499</p>
         <p>• Printed on premium quality paper</p>
         <p>• Ships within 2-3 business days</p>
         <p>• High-resolution printing guaranteed</p>
+        {category === "Split Posters" && <p>• Premium split-panel triptych design</p>}
       </div>
     </div>
   )

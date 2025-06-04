@@ -55,6 +55,27 @@ export default function ClientCart() {
     router.push("/checkout")
   }
 
+  // Helper function to get correct price display
+  const getItemPriceDisplay = (item: any) => {
+    // Check if the item has the correct price based on size and category
+    const isCorrectPrice = () => {
+      if (item.category === "Split Posters") {
+        return (item.size === "A4" && item.price === 299) || (item.size === "A3" && item.price === 399)
+      } else {
+        return (item.size === "A4" && item.price === 99) || (item.size === "A3" && item.price === 149)
+      }
+    }
+
+    return isCorrectPrice() ? (
+      <p className="font-semibold">₹{item.price}</p>
+    ) : (
+      <div>
+        <p className="font-semibold">₹{item.price}</p>
+        <p className="text-xs text-red-500">Price may be outdated</p>
+      </div>
+    )
+  }
+
   if (items.length === 0) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -121,6 +142,7 @@ export default function ClientCart() {
                                   onLoad={() => handleImageLoad(item.id)}
                                   onError={() => handleImageError(item.id)}
                                   sizes="(max-width: 768px) 100vw, 128px"
+                                  unoptimized={item.imageUrl.startsWith("data:") || item.imageUrl.includes("blob")}
                                 />
                                 {loadingImages[item.id] && (
                                   <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
@@ -145,7 +167,7 @@ export default function ClientCart() {
                                 <p className="text-sm text-gray-500 mt-1">{item.category}</p>
                                 {item.size && <p className="text-sm text-gray-500">Size: {item.size}</p>}
                               </div>
-                              <p className="font-semibold">₹{item.price}</p>
+                              {getItemPriceDisplay(item)}
                             </div>
 
                             <div className="flex justify-between items-center mt-6">
@@ -210,6 +232,7 @@ export default function ClientCart() {
                               fill
                               className="object-cover"
                               sizes="48px"
+                              unoptimized={item.imageUrl.startsWith("data:") || item.imageUrl.includes("blob")}
                             />
                           ) : (
                             <div className="absolute inset-0 flex items-center justify-center">

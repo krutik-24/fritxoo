@@ -5,13 +5,11 @@ import { usePosters } from "@/context/poster-context"
 import PosterCard from "@/components/poster-card"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
-import { Search, Filter, Grid3X3, Grid2X2, ChevronLeft, ChevronRight, Star } from "lucide-react"
+import { Filter, Grid3X3, Grid2X2, ChevronLeft, ChevronRight, Star } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
 export default function SplitPostersPage() {
   const { posters, loading } = usePosters()
-  const [searchTerm, setSearchTerm] = useState("")
   const [sortBy, setSortBy] = useState("featured")
   const [gridSize, setGridSize] = useState("3")
   const [currentPage, setCurrentPage] = useState(1)
@@ -22,43 +20,39 @@ export default function SplitPostersPage() {
     return posters.filter((poster) => poster.category === "Split Posters")
   }, [posters])
 
-  // Apply search and sort
-  const filteredAndSortedPosters = useMemo(() => {
-    let filtered = splitPosters.filter(
-      (poster) =>
-        poster.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        poster.description.toLowerCase().includes(searchTerm.toLowerCase()),
-    )
+  // Apply sort
+  const sortedPosters = useMemo(() => {
+    let sorted = [...splitPosters]
 
     // Sort posters
     switch (sortBy) {
       case "featured":
-        filtered = filtered.sort((a, b) => {
+        sorted = sorted.sort((a, b) => {
           if (a.featured && !b.featured) return -1
           if (!a.featured && b.featured) return 1
           return 0
         })
         break
       case "price-low":
-        filtered = filtered.sort((a, b) => a.price - b.price)
+        sorted = sorted.sort((a, b) => a.price - b.price)
         break
       case "price-high":
-        filtered = filtered.sort((a, b) => b.price - a.price)
+        sorted = sorted.sort((a, b) => b.price - a.price)
         break
       case "name":
-        filtered = filtered.sort((a, b) => a.title.localeCompare(b.title))
+        sorted = sorted.sort((a, b) => a.title.localeCompare(b.title))
         break
       default:
         break
     }
 
-    return filtered
-  }, [splitPosters, searchTerm, sortBy])
+    return sorted
+  }, [splitPosters, sortBy])
 
   // Pagination
-  const totalPages = Math.ceil(filteredAndSortedPosters.length / postersPerPage)
+  const totalPages = Math.ceil(sortedPosters.length / postersPerPage)
   const startIndex = (currentPage - 1) * postersPerPage
-  const currentPosters = filteredAndSortedPosters.slice(startIndex, startIndex + postersPerPage)
+  const currentPosters = sortedPosters.slice(startIndex, startIndex + postersPerPage)
 
   const nextPage = () => {
     if (currentPage < totalPages) {
@@ -116,19 +110,16 @@ export default function SplitPostersPage() {
         </div>
       </section>
 
-      {/* Filters and Controls */}
-      <section className="bg-white border-b sticky top-16 z-40">
-        <div className="container mx-auto px-4 py-6">
+      {/* Fixed Filter Bar - Positioned to not obscure content */}
+      <section className="bg-white border-b sticky top-16 z-30 shadow-md">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-            {/* Search */}
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Search split posters..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+            {/* Title and Count */}
+            <div className="flex items-center gap-4">
+              <h2 className="text-xl font-bold text-gray-900">Premium Split Posters</h2>
+              <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                {sortedPosters.length} designs
+              </Badge>
             </div>
 
             {/* Controls */}
@@ -172,33 +163,25 @@ export default function SplitPostersPage() {
           </div>
 
           {/* Results Info */}
-          <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
+          <div className="mt-3 flex items-center justify-between text-sm text-gray-600">
             <span>
-              Showing {startIndex + 1}-{Math.min(startIndex + postersPerPage, filteredAndSortedPosters.length)} of{" "}
-              {filteredAndSortedPosters.length} premium split posters
+              Showing {startIndex + 1}-{Math.min(startIndex + postersPerPage, sortedPosters.length)} of{" "}
+              {sortedPosters.length} premium split posters
             </span>
-            {searchTerm && <span>Search results for "{searchTerm}"</span>}
           </div>
         </div>
       </section>
 
-      {/* Posters Grid */}
-      <section className="py-12">
+      {/* Posters Grid - Added top padding to prevent obscuring */}
+      <section className="py-8 pt-4">
         <div className="container mx-auto px-4">
           {currentPosters.length === 0 ? (
             <div className="text-center py-16">
               <div className="text-gray-400 mb-4">
-                <Search className="h-16 w-16 mx-auto" />
+                <Star className="h-16 w-16 mx-auto" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-600 mb-2">No posters found</h3>
-              <p className="text-gray-500">
-                {searchTerm ? `No results for "${searchTerm}"` : "No split posters available"}
-              </p>
-              {searchTerm && (
-                <Button variant="outline" onClick={() => setSearchTerm("")} className="mt-4">
-                  Clear Search
-                </Button>
-              )}
+              <h3 className="text-xl font-semibold text-gray-600 mb-2">No split posters found</h3>
+              <p className="text-gray-500">No split posters available at the moment.</p>
             </div>
           ) : (
             <>

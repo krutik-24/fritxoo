@@ -34,10 +34,41 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     try {
       const savedCart = localStorage.getItem("poster-cart")
       if (savedCart) {
-        setItems(JSON.parse(savedCart))
+        // Parse the cart and validate/fix any pricing issues
+        const parsedCart = JSON.parse(savedCart)
+        const validatedCart = parsedCart.map((item: CartItem) => {
+          // Ensure correct pricing based on category and size
+          if (item.category === "Split Posters") {
+            if (item.size === "A4" && item.price !== 299) {
+              return { ...item, price: 299 }
+            } else if (item.size === "A3" && item.price !== 399) {
+              return { ...item, price: 399 }
+            }
+          } else {
+            if (item.size === "A4" && item.price !== 99) {
+              return { ...item, price: 99 }
+            } else if (item.size === "A3" && item.price !== 149) {
+              return { ...item, price: 149 }
+            }
+          }
+
+          // Filter out any items with blob URLs that might cause issues
+          if (item.imageUrl && item.imageUrl.startsWith("blob:")) {
+            return {
+              ...item,
+              imageUrl: `/placeholder.svg?height=400&width=300&text=${encodeURIComponent(item.title)}`,
+            }
+          }
+
+          return item
+        })
+
+        setItems(validatedCart)
       }
     } catch (error) {
       console.error("Failed to load cart:", error)
+      // If there's an error, clear the cart to prevent further issues
+      localStorage.removeItem("poster-cart")
     }
   }, [])
 
@@ -51,13 +82,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [items])
 
   const addItem = (newItem: Omit<CartItem, "quantity">) => {
+    // Ensure correct pricing based on category and size
+    let price = newItem.price
+    if (newItem.category === "Split Posters") {
+      price = newItem.size === "A3" ? 399 : 299
+    } else {
+      price = newItem.size === "A3" ? 149 : 99
+    }
+
     setItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.id === newItem.id)
 
       if (existingItem) {
         return prevItems.map((item) => (item.id === newItem.id ? { ...item, quantity: item.quantity + 1 } : item))
       } else {
-        return [...prevItems, { ...newItem, quantity: 1 }]
+        return [...prevItems, { ...newItem, price, quantity: 1 }]
       }
     })
   }

@@ -31,6 +31,26 @@ interface PosterContextType {
 // Create the context
 const PosterContext = createContext<PosterContextType | undefined>(undefined)
 
+// Helper function to validate and fix image URLs
+const validateImageUrl = (url: string, title: string): string => {
+  if (!url || url === "undefined" || url === "null") {
+    return `/placeholder.svg?height=400&width=300&text=${encodeURIComponent(title)}`
+  }
+
+  // Check for problematic blob URLs
+  if (url.startsWith("blob:") && !url.includes("v0.dev") && !url.includes("vercel-storage.com")) {
+    console.warn(`Removing problematic blob URL for ${title}: ${url}`)
+    return `/placeholder.svg?height=400&width=300&text=${encodeURIComponent(title)}`
+  }
+
+  // Ensure HTTPS for external URLs
+  if (url.startsWith("http://")) {
+    return url.replace("http://", "https://")
+  }
+
+  return url
+}
+
 // Provider component
 export function PosterProvider({ children }: { children: ReactNode }) {
   const [posters, setPosters] = useState<Poster[]>([])
@@ -40,9 +60,9 @@ export function PosterProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const loadPosters = async () => {
       // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 500))
+      await new Promise((resolve) => setTimeout(resolve, 300))
 
-      // Complete collection of all posters with updated pricing
+      // Complete collection of all posters with working image URLs
       const completePosters = [
         // CAR POSTERS - A4: ₹99, A3: ₹149
         {
@@ -57,353 +77,280 @@ export function PosterProvider({ children }: { children: ReactNode }) {
           featured: true,
         },
         {
-          id: "2",
+          id: "3",
           title: "1984 Audi Sport Quattro",
           category: "Cars",
           price: 99,
           priceA3: 149,
           description: "Iconic 1984 Audi Sport Quattro rally car",
-          imageUrl:
-            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/audi.jpg-yCWRGWaZF7TBITD9awP7MDRDUNdqD9.jpeg",
+          imageUrl: "/images/audi-sport-quattro.jpg",
           slug: "audi-sport-quattro",
-          featured: true,
+          featured: false,
         },
         {
-          id: "3",
+          id: "4",
           title: "1999 Nissan Skyline GT-R R34",
           category: "Cars",
           price: 99,
           priceA3: 149,
           description: "Legendary 1999 Nissan Skyline GT-R R34 sports car",
-          imageUrl:
-            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/skyline%20gtr-LzO6YsF9uky63dV5JcyCrpVE4EQayW.png",
+          imageUrl: "/images/nissan-skyline-gtr-r34.jpg",
           slug: "nissan-skyline-gtr-r34",
           featured: false,
         },
         {
-          id: "4",
+          id: "5",
           title: "Ferrari F40 - Unleash The Legend",
           category: "Cars",
           price: 99,
           priceA3: 149,
           description: "Ferrari F40 supercar with performance specifications",
-          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/f40-ZN0pg4Nt3WLOMi5IVbfT7IqR63FMKG.png",
+          imageUrl: "/images/ferrari-f40.png",
           slug: "ferrari-f40-unleash-legend",
           featured: true,
         },
         {
-          id: "5",
+          id: "6",
           title: "Bugatti Chiron - Engineered For Gods",
           category: "Cars",
           price: 99,
           priceA3: 149,
           description: "Bugatti Chiron hypercar in cyberpunk setting",
-          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/chiron-ES4dcM11iPyaJjT9bdPcmnVUJMF5q0.png",
+          imageUrl: "/images/bugatti-chiron.png",
           slug: "bugatti-chiron-engineered-gods",
           featured: false,
         },
         {
-          id: "6",
+          id: "7",
           title: "Aston Martin DBS - Master The Machine",
           category: "Cars",
           price: 99,
           priceA3: 149,
           description: "Aston Martin DBS grand tourer",
-          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/dbs-7d4e0T86gDejDDqYLqr19mFDaGRiEl.png",
+          imageUrl: "/images/aston-martin-dbs.png",
           slug: "aston-martin-dbs-master-machine",
           featured: false,
         },
         {
-          id: "7",
+          id: "8",
           title: "Lamborghini Aventador - Unleash The Rage",
           category: "Cars",
           price: 99,
           priceA3: 149,
           description: "Lamborghini Aventador supercar with dramatic lighting",
-          imageUrl:
-            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/aventedor-lSaXHHYAO1bIVQobghVl2exRf9lpWI.png",
+          imageUrl: "/images/lamborghini-aventador.png",
           slug: "lamborghini-aventador-unleash-rage",
           featured: false,
         },
         {
-          id: "8",
+          id: "9",
           title: "Toyota Century - Timeless Regal",
           category: "Cars",
           price: 99,
           priceA3: 149,
           description: "Toyota Century luxury sedan in nighttime setting",
-          imageUrl:
-            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/century-jNhFbPZWuq9X3wQrT9ecxSFiUSOzg7.png",
+          imageUrl: "/images/toyota-century.png",
           slug: "toyota-century-timeless-regal",
           featured: false,
         },
         {
-          id: "9",
+          id: "10",
           title: "1961 Jaguar E-Type Series 1",
           category: "Cars",
           price: 99,
           priceA3: 149,
           description: "Classic 1961 Jaguar E-Type Series 1 sports car",
-          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/jaguar-epMkvmwhu5Rva5zfSIYTMUFHyodeSo.png",
+          imageUrl: "/images/jaguar-e-type.png",
           slug: "jaguar-e-type-series-1",
           featured: false,
         },
         {
-          id: "10",
+          id: "11",
           title: "The Last Breath of Fire",
           category: "Cars",
           price: 99,
           priceA3: 149,
           description: "Ferrari with dramatic fire effects and red lighting",
-          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/fire-c5vNAHhVZDJywPXaN8Fe0kbGcgDoAB.png",
+          imageUrl: "/images/ferrari-fire.png",
           slug: "last-breath-fire",
           featured: false,
         },
         {
-          id: "11",
+          id: "12",
           title: "Hellcat - Dominate The Streets",
           category: "Cars",
           price: 99,
           priceA3: 149,
           description: "Dodge Challenger Hellcat muscle car",
-          imageUrl:
-            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/hell%20cat-yRJa8R9n9qIyHETBhkJKh4NqtDOdqN.png",
+          imageUrl: "/images/hellcat-dominate.png",
           slug: "hellcat-dominate-streets",
           featured: false,
         },
         {
-          id: "12",
+          id: "13",
           title: "Unleash The Hemi Power",
           category: "Cars",
           price: 99,
           priceA3: 149,
           description: "Dodge Challenger with Hemi engine power",
-          imageUrl:
-            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/hell%20cat2-zVVy2fyLkrT4haivvQIdRWbel5oVg9.png",
+          imageUrl: "/images/hellcat-hemi.png",
           slug: "unleash-hemi-power",
           featured: false,
         },
         {
-          id: "13",
+          id: "14",
           title: "1963 Ferrari 250 GTO",
           category: "Cars",
           price: 99,
           priceA3: 149,
           description: "Classic 1963 Ferrari 250 GTO racing legend",
-          imageUrl:
-            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ferrari-hRveuEHk6KdgPC6G7yhnPY7z810KXn.png",
+          imageUrl: "/images/ferrari-250-gto-63.png",
           slug: "ferrari-250-gto-1963",
           featured: false,
         },
+        // MOVIE POSTERS - A4: ₹99, A3: ₹149 (Only the specified posters)
         {
-          id: "14",
-          title: "Porsche Turbo S - Where Elegance Meets Velocity",
-          category: "Cars",
-          price: 99,
-          priceA3: 149,
-          description: "Porsche 911 Turbo S on mountain roads with dramatic lighting",
-          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/porche-LXNOkw4tWeCj0NV7E80ahQsE123bST.png",
-          slug: "porsche-turbo-s-elegance-velocity",
-          featured: true,
-        },
-        {
-          id: "15",
-          title: "Rage of Retro - Lamborghini Countach",
-          category: "Cars",
-          price: 99,
-          priceA3: 149,
-          description: "Retro synthwave Lamborghini Countach poster with 80s aesthetic",
-          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/lambo-GFUUouynIi1HvvbF10S7ZwHXWC9ZCm.png",
-          slug: "rage-retro-lamborghini-countach",
-          featured: false,
-        },
-        {
-          id: "16",
-          title: "Godzilla - The Beast From The East",
-          category: "Cars",
-          price: 99,
-          priceA3: 149,
-          description: "Nissan Skyline GT-R R34 in cyberpunk setting",
-          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/r34-cES6uiUWHm3piAAZKSuOjswkucEauP.png",
-          slug: "godzilla-beast-east-r34",
-          featured: false,
-        },
-        {
-          id: "17",
-          title: "1970 Ford Mustang Boss 302",
-          category: "Cars",
-          price: 99,
-          priceA3: 149,
-          description: "Classic 1970 Ford Mustang Boss 302 in minimalist design",
-          imageUrl:
-            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/mustang-LmDaskP6cWgV0rkeP43Jhd5OMqFgTq.png",
-          slug: "ford-mustang-boss-302-1970",
-          featured: false,
-        },
-        {
-          id: "18",
-          title: "Skyline GT-R R32 - Cherry Blossom",
-          category: "Cars",
-          price: 99,
-          priceA3: 149,
-          description: "Nissan Skyline GT-R R32 under cherry blossom tree",
-          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/r32-jCt4k0ZXAB2Cxeqx83LxkrR4ueU3c4.png",
-          slug: "skyline-gtr-r32-cherry-blossom",
-          featured: false,
-        },
-        {
-          id: "19",
-          title: "Legend Reborn - Toyota Supra",
-          category: "Cars",
-          price: 99,
-          priceA3: 149,
-          description: "Toyota Supra in cyberpunk cityscape - Built for the street, born to dominate",
-          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/supra-PDeR5Kc4OYt6BR8lrlCC4NtUmkBnMq.png",
-          slug: "legend-reborn-toyota-supra",
-          featured: false,
-        },
-        // MOVIE POSTERS - A4: ₹99, A3: ₹149
-        {
-          id: "20",
+          id: "movie-1",
           title: "The OG - They Call Him OG",
           category: "Movies",
           price: 99,
           priceA3: 149,
-          description: "Pawan Kalyan in The OG - Action thriller poster",
-          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/OG-ZsXTjXKgzFL8JUrzEWn3IHueBxNNXi.png",
+          description:
+            "Pawan Kalyan in The OG - Action thriller poster featuring the iconic 'They Call Him OG' tagline",
+          imageUrl: "/images/the-og.png",
           slug: "the-og-they-call-him-og",
           featured: true,
         },
         {
-          id: "21",
+          id: "movie-2",
           title: "The Godfather",
           category: "Movies",
           price: 99,
           priceA3: 149,
-          description: "Classic Godfather movie poster with Marlon Brando",
-          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/GF-o8xChpri3zVp0NGwrNIjfRv6AO9eJx.png",
+          description: "Classic Godfather movie poster featuring Marlon Brando with the iconic puppet strings imagery",
+          imageUrl: "/images/the-godfather.png",
           slug: "the-godfather",
           featured: true,
         },
         {
-          id: "22",
+          id: "movie-3",
           title: "American Psycho",
           category: "Movies",
           price: 99,
           priceA3: 149,
-          description: "American Psycho movie poster directed by Mary Harron",
-          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/AP-Dd5FvAHy2f4jcDHHPnTFbXhVPhqp1F.png",
+          description: "American Psycho movie poster directed by Mary Harron - Minimalist design with cast credits",
+          imageUrl: "/images/american-psycho.png",
           slug: "american-psycho",
-          featured: false,
+          featured: true,
         },
         {
-          id: "23",
+          id: "movie-4",
           title: "The Batman",
           category: "Movies",
           price: 99,
           priceA3: 149,
-          description: "The Batman movie poster with dark noir aesthetic",
-          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/BM-5ICYnkqnTbThKrEfExkP7GfqTCf5Ya.png",
+          description: "The Batman movie poster with dark noir aesthetic featuring Batman in the rain",
+          imageUrl: "/images/the-batman.png",
           slug: "the-batman",
           featured: true,
         },
         {
-          id: "24",
+          id: "movie-5",
           title: "Batman - Brave",
           category: "Movies",
           price: 99,
           priceA3: 149,
-          description: "Batman poster with 'Brave' typography in dark, gritty style",
-          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/BM2-7zL7F0Ayzksxt0Mtt61RDODYHalX1L.png",
+          description: "Batman poster with 'Brave' typography in dark, gritty style showcasing the Dark Knight",
+          imageUrl: "/images/batman-brave.png",
           slug: "batman-brave",
           featured: false,
         },
-        // SPLIT POSTERS - A4: ₹299, A3: ₹399 (Updated pricing)
+        // SPLIT POSTERS - A4: ₹299, A3: ₹399
         {
-          id: "25",
+          id: "split-1",
           title: "Aston Martin DBS - Superleggera Split",
           category: "Split Posters",
           price: 299,
           priceA3: 399,
           description: "Premium split-panel Aston Martin DBS poster with elegant green backdrop",
-          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/am-MuhCzhcVliuFqBlZ7hP2yCjt358H3I.png",
+          imageUrl: "/images/split-aston-martin.png",
           slug: "aston-martin-dbs-split",
           featured: true,
         },
         {
-          id: "26",
+          id: "split-2",
           title: "Mercedes AMG - Beastmode Black Series Split",
           category: "Split Posters",
           price: 299,
           priceA3: 399,
           description: "High-performance Mercedes AMG split poster with dramatic orange styling",
-          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/amg-p9qIz5OqGT1uDqRHF1ScB7ITibpTTa.png",
+          imageUrl: "/images/split-amg-beastmode.png",
           slug: "mercedes-amg-beastmode-split",
           featured: true,
         },
         {
-          id: "27",
+          id: "split-3",
           title: "Land Rover Defender Split",
           category: "Split Posters",
           price: 299,
           priceA3: 399,
           description: "Rugged Land Rover Defender 130 split-panel poster in minimalist black design",
-          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/def-j797cvn1BTFYekS0mtkiybcdZuwuVW.png",
+          imageUrl: "/images/split-defender.png",
           slug: "land-rover-defender-split",
           featured: false,
         },
         {
-          id: "28",
+          id: "split-4",
           title: "Ferrari 812 Superfast Split",
           category: "Split Posters",
           price: 299,
           priceA3: 399,
           description: "Iconic Ferrari 812 Superfast split poster with bold red typography",
-          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/fef-AGL5t7T5vBlyZTzqJKg2VyztyjSpJe.png",
+          imageUrl: "/images/split-ferrari.png",
           slug: "ferrari-812-superfast-split",
           featured: true,
         },
         {
-          id: "29",
+          id: "split-5",
           title: "Porsche 911 GT3 RS - Obsession Split",
           category: "Split Posters",
           price: 299,
           priceA3: 399,
           description: "Porsche 911 GT3 RS split poster showcasing obsession for perfection",
-          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/gt3rs-Jdtlcjl5C9jn6gjxT6clJApVQ17ehl.png",
+          imageUrl: "/images/split-gt3rs.png",
           slug: "porsche-gt3rs-obsession-split",
           featured: true,
         },
         {
-          id: "30",
+          id: "split-6",
           title: "Peaky Blinders - By Order Split",
           category: "Split Posters",
           price: 299,
           priceA3: 399,
           description: "Vintage Peaky Blinders split poster with authentic period styling",
-          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/pb-F7RaPBGDoq49lbPTo4Flyn7PsAYTLr.png",
+          imageUrl: "/images/split-peaky-blinders.png",
           slug: "peaky-blinders-split",
           featured: false,
         },
         {
-          id: "31",
+          id: "split-7",
           title: "Lamborghini Huracan - Instinct Split",
           category: "Split Posters",
           price: 299,
           priceA3: 399,
           description: "Lamborghini Huracan Tecnica split poster with Japanese-inspired design",
-          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/lambo-1d5rhvak6nvpFx8hBIjmCD4lCkkfb5.png",
+          imageUrl: "/images/split-lamborghini.png",
           slug: "lamborghini-huracan-instinct-split",
           featured: false,
         },
         {
-          id: "32",
+          id: "split-8",
           title: "Rimac Nevera - Electric Reign Split",
           category: "Split Posters",
           price: 299,
           priceA3: 399,
           description: "Electric hypercar Rimac Nevera split poster with lightning effects",
-          imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/rn-o7XyuNd18quK1vLrcPhqOaenhfmiMy.png",
+          imageUrl: "/images/split-rimac-nevera.png",
           slug: "rimac-nevera-electric-split",
           featured: false,
         },
@@ -415,37 +362,62 @@ export function PosterProvider({ children }: { children: ReactNode }) {
         try {
           const parsedPosters = JSON.parse(savedPosters)
 
-          // Create a map of existing posters by ID
-          const existingPostersMap = new Map(parsedPosters.map((p: Poster) => [p.id, p]))
+          // Filter out old sample movie posters and Sports Car Collection
+          const filteredPosters = parsedPosters.filter(
+            (p: Poster) =>
+              p.title !== "Sports Car Collection" &&
+              p.id !== "2" &&
+              // Remove old sample movie posters by checking for specific IDs or Unsplash URLs
+              !(
+                p.category === "Movies" &&
+                (p.imageUrl?.includes("unsplash.com") ||
+                  ["20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30"].includes(p.id))
+              ),
+          )
 
-          // Update existing posters with correct pricing and add new ones
+          // Create a map of existing posters by ID
+          const existingPostersMap = new Map(filteredPosters.map((p: Poster) => [p.id, p]))
+
+          // Update existing posters with correct pricing and validate image URLs
           const updatedPosters = completePosters.map((newPoster) => {
             const existingPoster = existingPostersMap.get(newPoster.id)
             if (existingPoster) {
-              // Update existing poster with correct pricing and image URL
+              // Update existing poster with correct pricing and validated image URL
               return {
                 ...existingPoster,
                 price: newPoster.price, // Apply new pricing structure
                 priceA3: newPoster.priceA3,
-                imageUrl: newPoster.imageUrl, // Ensure correct image URL
+                imageUrl: validateImageUrl(existingPoster.imageUrl, existingPoster.title), // Validate image URL
                 category: newPoster.category, // Ensure correct category
                 featured: newPoster.featured, // Update featured status
+                description: newPoster.description, // Update description
               }
             }
-            return newPoster
+            return {
+              ...newPoster,
+              imageUrl: validateImageUrl(newPoster.imageUrl, newPoster.title),
+            }
           })
 
           // Add any additional posters that were added by admin but not in our default list
-          const additionalPosters = parsedPosters
+          const additionalPosters = filteredPosters
             .filter(
               (p: Poster) =>
-                !completePosters.find((cp) => cp.id === p.id) && p.imageUrl && p.imageUrl !== "/placeholder.svg",
+                !completePosters.find((cp) => cp.id === p.id) &&
+                p.imageUrl &&
+                p.imageUrl !== "/placeholder.svg" &&
+                !p.imageUrl.startsWith("blob:") &&
+                p.title !== "Sports Car Collection" &&
+                // Exclude old sample movie posters
+                !(p.category === "Movies" && p.imageUrl?.includes("unsplash.com")),
             )
             .map((p: Poster) => ({
               ...p,
-              // Apply pricing based on category
+              // Apply correct pricing based on category
               price: p.category === "Split Posters" ? 299 : 99,
               priceA3: p.category === "Split Posters" ? 399 : 149,
+              // Validate and fix image URL
+              imageUrl: validateImageUrl(p.imageUrl, p.title),
             }))
 
           const finalPosters = [...updatedPosters, ...additionalPosters]
@@ -453,12 +425,20 @@ export function PosterProvider({ children }: { children: ReactNode }) {
           localStorage.setItem("posters", JSON.stringify(finalPosters))
         } catch (err) {
           console.error("Error parsing saved posters:", err)
-          setPosters(completePosters)
-          localStorage.setItem("posters", JSON.stringify(completePosters))
+          const validatedPosters = completePosters.map((poster) => ({
+            ...poster,
+            imageUrl: validateImageUrl(poster.imageUrl, poster.title),
+          }))
+          setPosters(validatedPosters)
+          localStorage.setItem("posters", JSON.stringify(validatedPosters))
         }
       } else {
-        setPosters(completePosters)
-        localStorage.setItem("posters", JSON.stringify(completePosters))
+        const validatedPosters = completePosters.map((poster) => ({
+          ...poster,
+          imageUrl: validateImageUrl(poster.imageUrl, poster.title),
+        }))
+        setPosters(validatedPosters)
+        localStorage.setItem("posters", JSON.stringify(validatedPosters))
       }
 
       setLoading(false)
@@ -470,12 +450,26 @@ export function PosterProvider({ children }: { children: ReactNode }) {
   // Save posters to localStorage whenever they change
   useEffect(() => {
     if (!loading && posters.length > 0) {
-      localStorage.setItem("posters", JSON.stringify(posters))
+      // Filter out problematic posters before saving
+      const filteredPosters = posters.filter(
+        (poster) =>
+          poster.title !== "Sports Car Collection" &&
+          poster.id !== "2" &&
+          // Remove old sample movie posters
+          !(poster.category === "Movies" && poster.imageUrl?.includes("unsplash.com")),
+      )
+      localStorage.setItem("posters", JSON.stringify(filteredPosters))
     }
   }, [posters, loading])
 
   // Add a new poster
   const addPoster = (posterData: Omit<Poster, "id" | "slug">) => {
+    // Prevent adding problematic posters
+    if (posterData.title === "Sports Car Collection") {
+      console.warn("Sports Car Collection poster is not allowed")
+      return
+    }
+
     const id = Date.now().toString()
     const slug = generateSlug(posterData.title)
 
@@ -485,6 +479,7 @@ export function PosterProvider({ children }: { children: ReactNode }) {
       slug,
       price: posterData.price || (posterData.category === "Split Posters" ? 299 : 99),
       priceA3: posterData.priceA3 || (posterData.category === "Split Posters" ? 399 : 149),
+      imageUrl: validateImageUrl(posterData.imageUrl, posterData.title),
     }
 
     console.log("Adding new poster:", newPoster)
@@ -493,6 +488,12 @@ export function PosterProvider({ children }: { children: ReactNode }) {
 
   // Update an existing poster
   const updatePoster = (id: string, posterData: Partial<Poster>) => {
+    // Prevent updating to problematic titles
+    if (posterData.title === "Sports Car Collection") {
+      console.warn("Cannot update to Sports Car Collection")
+      return
+    }
+
     setPosters((prevPosters) =>
       prevPosters.map((poster) => {
         if (poster.id === id) {
@@ -502,10 +503,27 @@ export function PosterProvider({ children }: { children: ReactNode }) {
             slug = generateSlug(posterData.title)
           }
 
+          // Validate image URL if it's being updated
+          let imageUrl = poster.imageUrl
+          if (posterData.imageUrl) {
+            imageUrl = validateImageUrl(posterData.imageUrl, posterData.title || poster.title)
+          }
+
+          // Ensure correct pricing
+          let price = poster.price
+          let priceA3 = poster.priceA3
+          if (posterData.category) {
+            price = posterData.category === "Split Posters" ? 299 : 99
+            priceA3 = posterData.category === "Split Posters" ? 399 : 149
+          }
+
           return {
             ...poster,
             ...posterData,
             slug,
+            imageUrl,
+            price,
+            priceA3,
           }
         }
         return poster
@@ -529,10 +547,20 @@ export function PosterProvider({ children }: { children: ReactNode }) {
     console.log("Getting posters for category:", formattedCategory)
     console.log("Total posters:", posters.length)
 
-    // Accept all image URLs, including blob URLs and data URLs
+    // Filter posters by category and exclude problematic ones
     const filtered = posters.filter((poster) => {
       if (!poster || !poster.category) {
         console.log("Poster missing category:", poster?.title)
+        return false
+      }
+
+      // Exclude problematic posters
+      if (poster.title === "Sports Car Collection" || poster.id === "2") {
+        return false
+      }
+
+      // Exclude old sample movie posters
+      if (poster.category === "Movies" && poster.imageUrl?.includes("unsplash.com")) {
         return false
       }
 
@@ -555,19 +583,37 @@ export function PosterProvider({ children }: { children: ReactNode }) {
   const getFeaturedPosters = () => {
     return posters.filter((poster) => {
       if (!poster) return false
+      // Exclude problematic posters from featured
+      if (poster.title === "Sports Car Collection" || poster.id === "2") return false
+      if (poster.category === "Movies" && poster.imageUrl?.includes("unsplash.com")) return false
       return poster.featured === true
     })
   }
 
   // Get poster by ID
   const getPosterById = (id: string) => {
-    return posters.find((poster) => poster.id === id)
+    const poster = posters.find((poster) => poster.id === id)
+    // Return null if it's a problematic poster
+    if (
+      poster &&
+      (poster.title === "Sports Car Collection" ||
+        poster.id === "2" ||
+        (poster.category === "Movies" && poster.imageUrl?.includes("unsplash.com")))
+    ) {
+      return undefined
+    }
+    return poster
   }
 
   return (
     <PosterContext.Provider
       value={{
-        posters,
+        posters: posters.filter(
+          (p) =>
+            p.title !== "Sports Car Collection" &&
+            p.id !== "2" &&
+            !(p.category === "Movies" && p.imageUrl?.includes("unsplash.com")),
+        ), // Filter out problematic posters from context
         addPoster,
         updatePoster,
         deletePoster,

@@ -3,18 +3,13 @@
 import { useState, useMemo } from "react"
 import { usePosters } from "@/context/poster-context"
 import PosterCard from "@/components/poster-card"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
-import { Search, Filter, Grid3X3, Grid2X2, ChevronLeft, ChevronRight, Car, Star } from "lucide-react"
+import { Filter, Grid3X3, Grid2X2, ChevronLeft, ChevronRight, Car } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import Link from "next/link"
 
 export default function CarsPage() {
   const { posters, loading } = usePosters()
-  const [searchTerm, setSearchTerm] = useState("")
   const [sortBy, setSortBy] = useState("featured")
   const [gridSize, setGridSize] = useState("3")
   const [currentPage, setCurrentPage] = useState(1)
@@ -25,43 +20,39 @@ export default function CarsPage() {
     return posters.filter((poster) => poster.category === "Cars")
   }, [posters])
 
-  // Apply search and sort
-  const filteredAndSortedPosters = useMemo(() => {
-    let filtered = carPosters.filter(
-      (poster) =>
-        poster.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        poster.description.toLowerCase().includes(searchTerm.toLowerCase()),
-    )
+  // Apply sort
+  const sortedPosters = useMemo(() => {
+    let sorted = [...carPosters]
 
     // Sort posters
     switch (sortBy) {
       case "featured":
-        filtered = filtered.sort((a, b) => {
+        sorted = sorted.sort((a, b) => {
           if (a.featured && !b.featured) return -1
           if (!a.featured && b.featured) return 1
           return 0
         })
         break
       case "price-low":
-        filtered = filtered.sort((a, b) => a.price - b.price)
+        sorted = sorted.sort((a, b) => a.price - b.price)
         break
       case "price-high":
-        filtered = filtered.sort((a, b) => b.price - a.price)
+        sorted = sorted.sort((a, b) => b.price - a.price)
         break
       case "name":
-        filtered = filtered.sort((a, b) => a.title.localeCompare(b.title))
+        sorted = sorted.sort((a, b) => a.title.localeCompare(b.title))
         break
       default:
         break
     }
 
-    return filtered
-  }, [carPosters, searchTerm, sortBy])
+    return sorted
+  }, [carPosters, sortBy])
 
   // Pagination
-  const totalPages = Math.ceil(filteredAndSortedPosters.length / postersPerPage)
+  const totalPages = Math.ceil(sortedPosters.length / postersPerPage)
   const startIndex = (currentPage - 1) * postersPerPage
-  const currentPosters = filteredAndSortedPosters.slice(startIndex, startIndex + postersPerPage)
+  const currentPosters = sortedPosters.slice(startIndex, startIndex + postersPerPage)
 
   const nextPage = () => {
     if (currentPage < totalPages) {
@@ -79,36 +70,31 @@ export default function CarsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <div className="flex-grow bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto px-4 py-16">
           <div className="text-center">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-current border-t-transparent mx-auto"></div>
             <p className="mt-4 text-gray-600">Loading car posters...</p>
           </div>
         </div>
-        <Footer />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-
+    <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-red-900 via-gray-900 to-black text-white py-20">
+      <section className="bg-gradient-to-r from-red-900 via-red-800 to-black text-white py-20">
         <div className="container mx-auto px-4 text-center">
           <div className="flex items-center justify-center mb-4">
-            <Car className="h-8 w-8 text-red-400 mr-3" />
-            <Badge variant="secondary" className="bg-red-500 text-white font-semibold">
+            <Car className="h-6 w-6 text-red-400 mr-2" />
+            <Badge variant="secondary" className="bg-red-400 text-black font-semibold">
               AUTOMOTIVE COLLECTION
             </Badge>
           </div>
           <h1 className="text-5xl md:text-6xl font-bold mb-6">Car Posters</h1>
           <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
-            Stunning automotive designs featuring legendary supercars, classic muscle cars, and modern hypercars.
-            Transform your space with automotive excellence.
+            Discover our exclusive collection of automotive posters featuring iconic cars and legendary models.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <div className="flex items-center text-lg">
@@ -117,25 +103,22 @@ export default function CarsPage() {
               <span className="font-semibold text-red-400">A3: ₹149</span>
             </div>
             <Badge variant="outline" className="border-green-400 text-green-400">
-              Free Shipping on Orders Above ₹999
+              Free Shipping on Orders Above ₹499
             </Badge>
           </div>
         </div>
       </section>
 
-      {/* Filters and Controls */}
-      <section className="bg-white border-b sticky top-16 z-40">
+      {/* Controls - Fixed position with no hover effect */}
+      <section className="bg-white border-b sticky top-16 z-40 shadow-sm">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-            {/* Search */}
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Search car posters..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+            {/* Title and Count */}
+            <div className="flex items-center gap-4">
+              <h2 className="text-2xl font-bold text-gray-900">Car Posters</h2>
+              <Badge variant="secondary" className="bg-red-100 text-red-800">
+                {sortedPosters.length} designs
+              </Badge>
             </div>
 
             {/* Controls */}
@@ -181,16 +164,15 @@ export default function CarsPage() {
           {/* Results Info */}
           <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
             <span>
-              Showing {startIndex + 1}-{Math.min(startIndex + postersPerPage, filteredAndSortedPosters.length)} of{" "}
-              {filteredAndSortedPosters.length} car posters
+              Showing {startIndex + 1}-{Math.min(startIndex + postersPerPage, sortedPosters.length)} of{" "}
+              {sortedPosters.length} car posters
             </span>
-            {searchTerm && <span>Search results for "{searchTerm}"</span>}
           </div>
         </div>
       </section>
 
       {/* Posters Grid */}
-      <section className="flex-grow bg-gray-50 py-12">
+      <section className="py-12">
         <div className="container mx-auto px-4">
           {currentPosters.length === 0 ? (
             <div className="text-center py-16">
@@ -198,14 +180,7 @@ export default function CarsPage() {
                 <Car className="h-16 w-16 mx-auto" />
               </div>
               <h3 className="text-xl font-semibold text-gray-600 mb-2">No car posters found</h3>
-              <p className="text-gray-500">
-                {searchTerm ? `No results for "${searchTerm}"` : "No car posters available"}
-              </p>
-              {searchTerm && (
-                <Button variant="outline" onClick={() => setSearchTerm("")} className="mt-4">
-                  Clear Search
-                </Button>
-              )}
+              <p className="text-gray-500">No car posters available at the moment.</p>
             </div>
           ) : (
             <>
@@ -229,7 +204,7 @@ export default function CarsPage() {
                     {poster.featured && (
                       <div className="mt-2 flex justify-center">
                         <Badge variant="secondary" className="bg-red-100 text-red-800">
-                          <Star className="h-3 w-3 mr-1" />
+                          <Car className="h-3 w-3 mr-1" />
                           Featured
                         </Badge>
                       </div>
@@ -290,8 +265,8 @@ export default function CarsPage() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Why Choose Our Car Posters?</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Premium automotive art featuring the world's most iconic vehicles, printed with exceptional quality and
-              attention to detail.
+              Our automotive posters feature iconic cars and legendary models that will bring style and passion to any
+              space.
             </p>
           </div>
 
@@ -300,42 +275,34 @@ export default function CarsPage() {
               <div className="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Car className="h-8 w-8 text-red-600" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Iconic Vehicles</h3>
+              <h3 className="text-xl font-semibold mb-2">Iconic Models</h3>
               <p className="text-gray-600">
-                From classic Ferraris to modern hypercars, featuring the most legendary automotive designs.
+                Featuring legendary cars that have made automotive history and captured enthusiasts' hearts.
               </p>
             </div>
 
             <div className="text-center">
               <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Star className="h-8 w-8 text-blue-600" />
+                <Badge className="h-8 w-8 text-blue-600" />
               </div>
               <h3 className="text-xl font-semibold mb-2">Premium Quality</h3>
               <p className="text-gray-600">
-                High-resolution printing on premium paper ensures every detail of these automotive masterpieces shines.
+                High-resolution printing on premium paper ensures vibrant colors and sharp details.
               </p>
             </div>
 
             <div className="text-center">
               <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Badge className="h-8 w-8 text-green-600" />
+                <Grid3X3 className="h-8 w-8 text-green-600" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Affordable Pricing</h3>
-              <p className="text-gray-600">Premium automotive art at accessible prices - A4 at ₹99 and A3 at ₹149.</p>
+              <h3 className="text-xl font-semibold mb-2">Perfect Gift</h3>
+              <p className="text-gray-600">
+                Ideal gift for car enthusiasts, collectors, and anyone who appreciates automotive excellence.
+              </p>
             </div>
-          </div>
-
-          <div className="text-center mt-12">
-            <Link href="/shop">
-              <Button variant="outline" size="lg">
-                Explore All Categories
-              </Button>
-            </Link>
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   )
 }
