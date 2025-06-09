@@ -369,7 +369,7 @@ export function PosterProvider({ children }: { children: ReactNode }) {
         {
           id: "anime-10",
           title: "Straw Hat Pirates Wanted Posters Collage",
-          category: "Anime",
+          category: "Collage",
           price: 699,
           priceA3: 999,
           description:

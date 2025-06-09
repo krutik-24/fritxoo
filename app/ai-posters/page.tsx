@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useCart } from "@/context/cart-context"
-import AIPosterGenerator from "@/components/ai-poster-generator"
 
 export default function AIPosterPage() {
   const [posterTitle, setPosterTitle] = useState("")
@@ -114,8 +113,29 @@ export default function AIPosterPage() {
                 </div>
 
                 {/* Right side - Image generator */}
-                <div>
-                  <AIPosterGenerator title={posterTitle} onImageGenerated={handleImageGenerated} />
+                <div className="space-y-4">
+                  <div className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                    <p className="text-gray-500 mb-4">AI Image Generation</p>
+                    <button
+                      className="bg-black text-white px-6 py-2 rounded hover:bg-gray-800"
+                      onClick={() => {
+                        // Placeholder for AI generation
+                        const mockImageData = "/placeholder.svg?height=400&width=300"
+                        setGeneratedImageData(mockImageData)
+                      }}
+                    >
+                      Generate Poster
+                    </button>
+                    {generatedImageData && (
+                      <div className="mt-4">
+                        <img
+                          src={generatedImageData || "/placeholder.svg"}
+                          alt="Generated poster"
+                          className="max-w-full h-auto rounded"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 

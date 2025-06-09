@@ -33,6 +33,9 @@ export default function Navbar() {
                 <Link href="/category/anime" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                   Anime
                 </Link>
+                <Link href="/category/collage" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  Collage
+                </Link>
                 <Link href="/category/movies" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                   Movies
                 </Link>
@@ -89,6 +92,9 @@ export default function Navbar() {
             </Link>
             <Link href="/category/anime" className="text-sm font-medium text-gray-700 hover:text-black">
               Anime
+            </Link>
+            <Link href="/category/collage" className="text-sm font-medium text-gray-700 hover:text-black">
+              Collage
             </Link>
             <Link href="/category/movies" className="text-sm font-medium text-gray-700 hover:text-black">
               Movies

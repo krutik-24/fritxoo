@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -76,8 +76,16 @@ export default function PosterCard({
     }
   }, [id, trackView, isVisible])
 
-  // Calculate current price based on selected size
-  const currentPrice = selectedSize === "A4" ? basePrice : a3Price
+  // Calculate current price based on selected size and poster type
+  const currentPrice = useMemo(() => {
+    // Special pricing for collage posters
+    if (category === "Collage" || title.includes("Collage")) {
+      return selectedSize === "A4" ? 699 : 999
+    }
+
+    // Regular pricing for other posters
+    return selectedSize === "A4" ? basePrice : a3Price
+  }, [selectedSize, basePrice, a3Price, category, title])
 
   // Enhanced image URL validation and optimization
   const getOptimizedImageUrl = useCallback((url: string, fallbackTitle: string) => {
