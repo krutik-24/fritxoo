@@ -111,7 +111,7 @@ export default function SplitPostersPage() {
       </section>
 
       {/* Fixed Filter Bar - Positioned to not obscure content */}
-      <section className="bg-white border-b sticky top-16 z-30 shadow-md">
+      <section className="bg-white border-b sticky top-0 z-30 shadow-md">
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
             {/* Title and Count */}

@@ -118,7 +118,7 @@ export default function CarsPage() {
                 <span className="font-semibold text-red-300">A3: ₹149</span>
               </div>
               <Badge variant="outline" className="border-green-400 text-green-400">
-                Free Shipping on Orders Above ₹499
+                Free Shipping on Prepaid Orders
               </Badge>
             </div>
           </div>
