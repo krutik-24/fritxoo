@@ -43,9 +43,27 @@ export default function PosterCard({
   const cardRef = useRef<HTMLDivElement>(null)
   const imageRef = useRef<HTMLImageElement>(null)
 
+  // Check if this is a jersey poster for enhanced logging
+  const isJerseyPoster = title.toLowerCase().includes("jersey") || slug?.includes("jersey")
+
   // Set correct pricing based on category
   const basePrice = category === "Split Posters" ? 299 : 99
   const a3Price = category === "Split Posters" ? 399 : 149
+
+  // Enhanced logging for jersey poster
+  useEffect(() => {
+    if (isJerseyPoster) {
+      console.log("🏈 Jersey Poster Card Initialized:", {
+        id,
+        title,
+        category,
+        imageUrl,
+        price,
+        priceA3,
+        slug,
+      })
+    }
+  }, [isJerseyPoster, id, title, category, imageUrl, price, priceA3, slug])
 
   // Intersection Observer for lazy loading
   useEffect(() => {
@@ -53,6 +71,9 @@ export default function PosterCard({
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true)
+          if (isJerseyPoster) {
+            console.log("🏈 Jersey Poster became visible:", title)
+          }
           observer.disconnect()
         }
       },
@@ -67,14 +88,17 @@ export default function PosterCard({
     }
 
     return () => observer.disconnect()
-  }, [])
+  }, [isJerseyPoster, title])
 
   // Track view when component becomes visible
   useEffect(() => {
     if (isVisible) {
       trackView(id, "gallery")
+      if (isJerseyPoster) {
+        console.log("🏈 Jersey Poster view tracked:", id)
+      }
     }
-  }, [id, trackView, isVisible])
+  }, [id, trackView, isVisible, isJerseyPoster])
 
   // Calculate current price based on selected size and poster type
   const currentPrice = useMemo(() => {
@@ -88,38 +112,45 @@ export default function PosterCard({
   }, [selectedSize, basePrice, a3Price, category, title])
 
   // Enhanced image URL validation and optimization
-  const getOptimizedImageUrl = useCallback((url: string, fallbackTitle: string) => {
-    if (!url || url === "undefined" || url === "null") {
-      return `/placeholder.svg?height=400&width=300&text=${encodeURIComponent(fallbackTitle)}`
-    }
-
-    // Handle blob URLs - only allow trusted sources
-    if (url.startsWith("blob:")) {
-      if (url.includes("v0.dev") || url.includes("vercel-storage.com")) {
-        return url
-      } else {
-        console.warn(`Untrusted blob URL for ${fallbackTitle}: ${url}`)
-        return `/placeholder.svg?height=400&width=300&text=${encodeURIComponent(fallbackTitle)}`
+  const getOptimizedImageUrl = useCallback(
+    (url: string, fallbackTitle: string) => {
+      if (!url || url === "undefined" || url === "null") {
+        const fallbackUrl = `/placeholder.svg?height=400&width=300&text=${encodeURIComponent(fallbackTitle)}`
+        if (isJerseyPoster) {
+          console.warn("🏈 Jersey Poster using fallback URL:", fallbackUrl)
+        }
+        return fallbackUrl
       }
-    }
 
-    // Handle relative paths
-    if (url.startsWith("/images/") || url.startsWith("/placeholder.svg")) {
-      return url
-    }
+      // Handle blob URLs - only allow trusted sources
+      if (url.startsWith("blob:")) {
+        if (url.includes("v0.dev") || url.includes("vercel-storage.com")) {
+          return url
+        } else {
+          console.warn(`Untrusted blob URL for ${fallbackTitle}: ${url}`)
+          return `/placeholder.svg?height=400&width=300&text=${encodeURIComponent(fallbackTitle)}`
+        }
+      }
 
-    // Handle external URLs
-    if (url.startsWith("http://")) {
-      return url.replace("http://", "https://")
-    }
+      // Handle relative paths
+      if (url.startsWith("/images/") || url.startsWith("/placeholder.svg")) {
+        return url
+      }
 
-    if (url.startsWith("https://")) {
-      return url
-    }
+      // Handle external URLs
+      if (url.startsWith("http://")) {
+        return url.replace("http://", "https://")
+      }
 
-    // Default fallback
-    return `/placeholder.svg?height=400&width=300&text=${encodeURIComponent(fallbackTitle)}`
-  }, [])
+      if (url.startsWith("https://")) {
+        return url
+      }
+
+      // Default fallback
+      return `/placeholder.svg?height=400&width=300&text=${encodeURIComponent(fallbackTitle)}`
+    },
+    [isJerseyPoster],
+  )
 
   const optimizedImageUrl = getOptimizedImageUrl(imageUrl, title)
 
@@ -129,12 +160,20 @@ export default function PosterCard({
 
     trackClick(id, "add_to_cart")
 
-    const itemPrice = selectedSize === "A4" ? basePrice : a3Price
+    if (isJerseyPoster) {
+      console.log("🏈 Jersey Poster added to cart:", {
+        id: `${id}-${selectedSize}`,
+        title: `${title} (${selectedSize})`,
+        price: currentPrice,
+        category,
+        size: selectedSize,
+      })
+    }
 
     addItem({
       id: `${id}-${selectedSize}`,
       title: `${title} (${selectedSize})`,
-      price: itemPrice,
+      price: currentPrice,
       category,
       imageUrl: imageError
         ? `/placeholder.svg?height=400&width=300&text=${encodeURIComponent(title)}`
@@ -150,10 +189,22 @@ export default function PosterCard({
 
   const handleViewDetails = () => {
     trackClick(id, "view_details")
+    if (isJerseyPoster) {
+      console.log("🏈 Jersey Poster details viewed:", id)
+    }
   }
 
   const handleImageError = useCallback(() => {
     console.warn(`Failed to load image for ${title}: ${imageUrl}`)
+
+    if (isJerseyPoster) {
+      console.error("🏈 Jersey Poster image failed to load:", {
+        title,
+        imageUrl,
+        retryCount,
+        optimizedUrl: optimizedImageUrl,
+      })
+    }
 
     // Try to retry loading a few times for network issues
     if (retryCount < 2 && !imageUrl.includes("placeholder.svg")) {
@@ -167,21 +218,31 @@ export default function PosterCard({
 
     setImageError(true)
     setImageLoaded(true)
-  }, [title, imageUrl, optimizedImageUrl, retryCount])
+  }, [title, imageUrl, optimizedImageUrl, retryCount, isJerseyPoster])
 
   const handleImageLoad = useCallback(() => {
     setImageLoaded(true)
     setImageError(false)
     setRetryCount(0)
-  }, [])
+
+    if (isJerseyPoster) {
+      console.log("🏈 Jersey Poster image loaded successfully:", title)
+    }
+  }, [isJerseyPoster, title])
 
   const productSlug = slug || id
 
   return (
     <div
       ref={cardRef}
-      className="group relative bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100"
+      className={`group relative bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border ${
+        isJerseyPoster ? "border-blue-200 ring-1 ring-blue-100" : "border-gray-100"
+      }`}
     >
+      {isJerseyPoster && (
+        <div className="absolute top-2 right-2 z-10 bg-blue-600 text-white text-xs px-2 py-1 rounded">🏈 Jersey</div>
+      )}
+
       <Link href={`/products/${productSlug}`} onClick={handleViewDetails}>
         <div className="aspect-[3/4] relative overflow-hidden bg-gray-50">
           {isVisible && !imageError ? (
@@ -197,8 +258,8 @@ export default function PosterCard({
                 onLoad={handleImageLoad}
                 onError={handleImageError}
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                priority={false}
-                loading="lazy"
+                priority={isJerseyPoster} // Prioritize jersey poster loading
+                loading={isJerseyPoster ? "eager" : "lazy"}
                 quality={90}
                 unoptimized={optimizedImageUrl.includes("blob") || optimizedImageUrl.startsWith("data:")}
               />
@@ -207,6 +268,7 @@ export default function PosterCard({
                   <div className="flex flex-col items-center gap-2">
                     <Loader2 className="h-6 w-6 text-gray-400 animate-spin" />
                     <span className="text-xs text-gray-500">Loading image...</span>
+                    {isJerseyPoster && <span className="text-xs text-blue-500">🏈 Jersey Poster</span>}
                   </div>
                 </div>
               )}
@@ -220,6 +282,7 @@ export default function PosterCard({
                 <div className="text-sm font-medium text-gray-600 mb-1">{title}</div>
                 <div className="text-xs text-gray-500">{category}</div>
                 <div className="text-xs text-gray-400 mt-2">Image unavailable</div>
+                {isJerseyPoster && <div className="text-xs text-blue-500 mt-1">🏈 Jersey Poster</div>}
               </div>
             </div>
           ) : (
@@ -227,6 +290,7 @@ export default function PosterCard({
               <div className="text-gray-400 text-center">
                 <div className="w-8 h-8 bg-gray-200 rounded animate-pulse mx-auto mb-2"></div>
                 <div className="text-xs">Preparing...</div>
+                {isJerseyPoster && <div className="text-xs text-blue-500 mt-1">🏈 Jersey</div>}
               </div>
             </div>
           )}
@@ -237,6 +301,7 @@ export default function PosterCard({
         <div className="mb-3">
           <h3 className="font-semibold text-lg text-gray-900 line-clamp-1 mb-1" title={title}>
             {title}
+            {isJerseyPoster && <span className="ml-2 text-blue-600">🏈</span>}
           </h3>
           <p className="text-sm text-gray-500 capitalize">{category}</p>
         </div>
@@ -267,7 +332,9 @@ export default function PosterCard({
           <Button
             onClick={handleAddToCart}
             size="sm"
-            className="w-full h-8 text-xs bg-black text-white hover:bg-gray-800 transition-colors"
+            className={`w-full h-8 text-xs transition-colors ${
+              isJerseyPoster ? "bg-blue-600 text-white hover:bg-blue-700" : "bg-black text-white hover:bg-gray-800"
+            }`}
           >
             Add to Cart
           </Button>

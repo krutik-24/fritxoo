@@ -55,14 +55,10 @@ export default function ClientCart() {
     router.push("/checkout")
   }
 
+  // Helper function to get correct price display
   const getItemPriceDisplay = (item: any) => {
-    // Helper function to get correct price display
+    // Check if the item has the correct price based on size and category
     const isCorrectPrice = () => {
-      // Special check for Straw Hat Pirates Collage
-      if (item.title.includes("Straw Hat Pirates") || item.category === "Collage") {
-        return (item.size === "A4" && item.price === 699) || (item.size === "A3" && item.price === 999)
-      }
-
       if (item.category === "Split Posters") {
         return (item.size === "A4" && item.price === 299) || (item.size === "A3" && item.price === 399)
       } else {
@@ -71,10 +67,10 @@ export default function ClientCart() {
     }
 
     return isCorrectPrice() ? (
-      <p className={`font-semibold ${item.category === "Collage" ? "text-yellow-600" : ""}`}>₹{item.price}</p>
+      <p className="font-semibold">₹{item.price}</p>
     ) : (
       <div>
-        <p className={`font-semibold ${item.category === "Collage" ? "text-yellow-600" : ""}`}>₹{item.price}</p>
+        <p className="font-semibold">₹{item.price}</p>
         <p className="text-xs text-red-500">Price may be outdated</p>
       </div>
     )

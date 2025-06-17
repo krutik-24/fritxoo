@@ -208,7 +208,7 @@ export function PosterProvider({ children }: { children: ReactNode }) {
           slug: "ferrari-250-gto-1963",
           featured: false,
         },
-        // MOVIE POSTERS - A4: ₹99, A3: ₹149
+        // MOVIE POSTERS - A4: ₹99, A3: ₹149 (Only the specified posters)
         {
           id: "movie-1",
           title: "The OG - They Call Him OG",
@@ -252,7 +252,7 @@ export function PosterProvider({ children }: { children: ReactNode }) {
           description: "The Batman movie poster with dark noir aesthetic featuring Batman in the rain",
           imageUrl: "/images/the-batman.png",
           slug: "the-batman",
-          featured: false,
+          featured: true,
         },
         {
           id: "movie-5",
@@ -264,40 +264,6 @@ export function PosterProvider({ children }: { children: ReactNode }) {
           imageUrl: "/images/batman-brave.png",
           slug: "batman-brave",
           featured: false,
-        },
-        {
-          id: "movie-6",
-          title: "Scarface - Say Hello to My Little Friend",
-          category: "Movies",
-          price: 99,
-          priceA3: 149,
-          description: "Classic Scarface movie poster featuring Tony Montana with weapon on red background",
-          imageUrl: "/images/scarface-new.png",
-          slug: "scarface-say-hello",
-          featured: true,
-        },
-        {
-          id: "movie-7",
-          title: "Rambo - First Blood",
-          category: "Movies",
-          price: 99,
-          priceA3: 149,
-          description: "Rambo movie poster featuring John Rambo with bow and arrow on red background",
-          imageUrl: "/images/rambo-first-blood-new.png",
-          slug: "rambo-first-blood",
-          featured: true,
-        },
-        {
-          id: "movie-8",
-          title: "Game of Thrones - Jon Snow",
-          category: "Movies",
-          price: 99,
-          priceA3: 149,
-          description:
-            "Game of Thrones poster featuring Jon Snow with Ghost and raven - 'Can a man still be brave if he's afraid?'",
-          imageUrl: "/images/game-of-thrones-jon-snow-new.png",
-          slug: "game-of-thrones-jon-snow",
-          featured: true,
         },
         // ANIME POSTERS - A4: ₹99, A3: ₹149
         {
@@ -414,18 +380,6 @@ export function PosterProvider({ children }: { children: ReactNode }) {
         },
         // SPLIT POSTERS - A4: ₹299, A3: ₹399
         {
-          id: "split-jersey",
-          title: "Jersey - It's Never Late to Try Again",
-          category: "Split Posters",
-          price: 299,
-          priceA3: 399,
-          description:
-            "Inspirational Jersey split poster with motivational message - It's Never Late to Try Again. Features cricket celebration scene with split-panel design on dark green background.",
-          imageUrl: "/images/jersey-split-updated.png",
-          slug: "jersey-never-late-try-again",
-          featured: true,
-        },
-        {
           id: "split-1",
           title: "Aston Martin DBS - Superleggera Split",
           category: "Split Posters",
@@ -446,6 +400,17 @@ export function PosterProvider({ children }: { children: ReactNode }) {
           imageUrl: "/images/split-amg-beastmode.png",
           slug: "mercedes-amg-beastmode-split",
           featured: true,
+        },
+        {
+          id: "split-3",
+          title: "Land Rover Defender Split",
+          category: "Split Posters",
+          price: 299,
+          priceA3: 399,
+          description: "Rugged Land Rover Defender 130 split-panel poster in minimalist black design",
+          imageUrl: "/images/split-defender.png",
+          slug: "land-rover-defender-split",
+          featured: false,
         },
         {
           id: "split-4",
@@ -470,65 +435,166 @@ export function PosterProvider({ children }: { children: ReactNode }) {
           featured: true,
         },
         {
-          id: "split-3",
-          title: "Land Rover Defender - Off-Road Beast Split",
-          category: "Split Posters",
-          price: 299,
-          priceA3: 399,
-          description: "Rugged Land Rover Defender split poster showcasing off-road capability and adventure spirit",
-          imageUrl: "/images/split-defender.png",
-          slug: "land-rover-defender-split",
-          featured: true,
-        },
-        {
           id: "split-6",
           title: "Peaky Blinders - By Order Split",
           category: "Split Posters",
           price: 299,
           priceA3: 399,
-          description: "Peaky Blinders themed split poster with vintage Birmingham aesthetic and iconic styling",
+          description: "Vintage Peaky Blinders split poster with authentic period styling",
           imageUrl: "/images/split-peaky-blinders.png",
-          slug: "peaky-blinders-order-split",
-          featured: true,
+          slug: "peaky-blinders-split",
+          featured: false,
         },
         {
           id: "split-7",
-          title: "Lamborghini Huracán - Raging Bull Split",
+          title: "Lamborghini Huracan - Instinct Split",
           category: "Split Posters",
           price: 299,
           priceA3: 399,
-          description: "Lamborghini Huracán split poster with dramatic lighting and aggressive styling",
+          description: "Lamborghini Huracan Tecnica split poster with Japanese-inspired design",
           imageUrl: "/images/split-lamborghini.png",
-          slug: "lamborghini-huracan-split",
-          featured: true,
+          slug: "lamborghini-huracan-instinct-split",
+          featured: false,
         },
         {
           id: "split-8",
-          title: "Rimac Nevera - Electric Hypercar Split",
+          title: "Rimac Nevera - Electric Reign Split",
           category: "Split Posters",
           price: 299,
           priceA3: 399,
-          description: "Rimac Nevera electric hypercar split poster showcasing cutting-edge automotive technology",
+          description: "Electric hypercar Rimac Nevera split poster with lightning effects",
           imageUrl: "/images/split-rimac-nevera.png",
           slug: "rimac-nevera-electric-split",
+          featured: false,
+        },
+        {
+          id: "split-9",
+          title: "Football Jersey Collection Split",
+          category: "Split Posters",
+          price: 299,
+          priceA3: 399,
+          description:
+            "Premium split-panel football jersey collection featuring iconic team designs and player jerseys",
+          imageUrl: "/images/split-jersey-collection.png",
+          slug: "football-jersey-collection-split",
           featured: true,
         },
       ]
 
-      const validatedPosters = completePosters.map((poster) => ({
-        ...poster,
-        imageUrl: validateImageUrl(poster.imageUrl, poster.title),
-      }))
+      // Check if we have saved posters and merge with new ones
+      const savedPosters = localStorage.getItem("posters")
+      if (savedPosters) {
+        try {
+          const parsedPosters = JSON.parse(savedPosters)
 
-      setPosters(validatedPosters)
+          // Filter out old sample movie posters and Sports Car Collection
+          const filteredPosters = parsedPosters.filter(
+            (p: Poster) =>
+              p.title !== "Sports Car Collection" &&
+              p.id !== "2" &&
+              // Remove old sample movie posters by checking for specific IDs or Unsplash URLs
+              !(
+                p.category === "Movies" &&
+                (p.imageUrl?.includes("unsplash.com") ||
+                  ["20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30"].includes(p.id))
+              ),
+          )
+
+          // Create a map of existing posters by ID
+          const existingPostersMap = new Map(filteredPosters.map((p: Poster) => [p.id, p]))
+
+          // Update existing posters with correct pricing and validate image URLs
+          const updatedPosters = completePosters.map((newPoster) => {
+            const existingPoster = existingPostersMap.get(newPoster.id)
+            if (existingPoster) {
+              // Update existing poster with correct pricing and validated image URL
+              return {
+                ...existingPoster,
+                price: newPoster.price, // Apply new pricing structure
+                priceA3: newPoster.priceA3,
+                imageUrl: validateImageUrl(existingPoster.imageUrl, existingPoster.title), // Validate image URL
+                category: newPoster.category, // Ensure correct category
+                featured: newPoster.featured, // Update featured status
+                description: newPoster.description, // Update description
+              }
+            }
+            return {
+              ...newPoster,
+              imageUrl: validateImageUrl(newPoster.imageUrl, newPoster.title),
+            }
+          })
+
+          // Add any additional posters that were added by admin but not in our default list
+          const additionalPosters = filteredPosters
+            .filter(
+              (p: Poster) =>
+                !completePosters.find((cp) => cp.id === p.id) &&
+                p.imageUrl &&
+                p.imageUrl !== "/placeholder.svg" &&
+                !p.imageUrl.startsWith("blob:") &&
+                p.title !== "Sports Car Collection" &&
+                // Exclude old sample movie posters
+                !(p.category === "Movies" && p.imageUrl?.includes("unsplash.com")),
+            )
+            .map((p: Poster) => ({
+              ...p,
+              // Apply correct pricing based on category
+              price: p.category === "Split Posters" ? 299 : 99,
+              priceA3: p.category === "Split Posters" ? 399 : 149,
+              // Validate and fix image URL
+              imageUrl: validateImageUrl(p.imageUrl, p.title),
+            }))
+
+          const finalPosters = [...updatedPosters, ...additionalPosters]
+          setPosters(finalPosters)
+          localStorage.setItem("posters", JSON.stringify(finalPosters))
+        } catch (err) {
+          console.error("Error parsing saved posters:", err)
+          const validatedPosters = completePosters.map((poster) => ({
+            ...poster,
+            imageUrl: validateImageUrl(poster.imageUrl, poster.title),
+          }))
+          setPosters(validatedPosters)
+          localStorage.setItem("posters", JSON.stringify(validatedPosters))
+        }
+      } else {
+        const validatedPosters = completePosters.map((poster) => ({
+          ...poster,
+          imageUrl: validateImageUrl(poster.imageUrl, poster.title),
+        }))
+        setPosters(validatedPosters)
+        localStorage.setItem("posters", JSON.stringify(validatedPosters))
+      }
+
       setLoading(false)
     }
 
     loadPosters()
   }, [])
 
+  // Save posters to localStorage whenever they change
+  useEffect(() => {
+    if (!loading && posters.length > 0) {
+      // Filter out problematic posters before saving
+      const filteredPosters = posters.filter(
+        (poster) =>
+          poster.title !== "Sports Car Collection" &&
+          poster.id !== "2" &&
+          // Remove old sample movie posters
+          !(poster.category === "Movies" && poster.imageUrl?.includes("unsplash.com")),
+      )
+      localStorage.setItem("posters", JSON.stringify(filteredPosters))
+    }
+  }, [posters, loading])
+
   // Add a new poster
   const addPoster = (posterData: Omit<Poster, "id" | "slug">) => {
+    // Prevent adding problematic posters
+    if (posterData.title === "Sports Car Collection") {
+      console.warn("Sports Car Collection poster is not allowed")
+      return
+    }
+
     const id = Date.now().toString()
     const slug = generateSlug(posterData.title)
 
@@ -541,22 +607,39 @@ export function PosterProvider({ children }: { children: ReactNode }) {
       imageUrl: validateImageUrl(posterData.imageUrl, posterData.title),
     }
 
+    console.log("Adding new poster:", newPoster)
     setPosters((prevPosters) => [...prevPosters, newPoster])
   }
 
   // Update an existing poster
   const updatePoster = (id: string, posterData: Partial<Poster>) => {
+    // Prevent updating to problematic titles
+    if (posterData.title === "Sports Car Collection") {
+      console.warn("Cannot update to Sports Car Collection")
+      return
+    }
+
     setPosters((prevPosters) =>
       prevPosters.map((poster) => {
         if (poster.id === id) {
+          // Update the slug if the title has changed
           let slug = poster.slug
           if (posterData.title && posterData.title !== poster.title) {
             slug = generateSlug(posterData.title)
           }
 
+          // Validate image URL if it's being updated
           let imageUrl = poster.imageUrl
           if (posterData.imageUrl) {
             imageUrl = validateImageUrl(posterData.imageUrl, posterData.title || poster.title)
+          }
+
+          // Ensure correct pricing
+          let price = poster.price
+          let priceA3 = poster.priceA3
+          if (posterData.category) {
+            price = posterData.category === "Split Posters" ? 299 : 99
+            priceA3 = posterData.category === "Split Posters" ? 399 : 149
           }
 
           return {
@@ -564,6 +647,8 @@ export function PosterProvider({ children }: { children: ReactNode }) {
             ...posterData,
             slug,
             imageUrl,
+            price,
+            priceA3,
           }
         }
         return poster
@@ -578,30 +663,82 @@ export function PosterProvider({ children }: { children: ReactNode }) {
 
   // Get posters by category
   const getPostersByCategory = (category: string) => {
+    // Convert category slug to proper format (e.g., "cars" to "Cars")
     const formattedCategory = category
       .split("-")
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(" ")
 
-    return posters.filter((poster) => {
-      return poster.category.toLowerCase() === formattedCategory.toLowerCase()
+    console.log("Getting posters for category:", formattedCategory)
+    console.log("Total posters:", posters.length)
+
+    // Filter posters by category and exclude problematic ones
+    const filtered = posters.filter((poster) => {
+      if (!poster || !poster.category) {
+        console.log("Poster missing category:", poster?.title)
+        return false
+      }
+
+      // Exclude problematic posters
+      if (poster.title === "Sports Car Collection" || poster.id === "2") {
+        return false
+      }
+
+      // Exclude old sample movie posters
+      if (poster.category === "Movies" && poster.imageUrl?.includes("unsplash.com")) {
+        return false
+      }
+
+      // Check if the category matches (case-insensitive)
+      const categoryMatch = poster.category.toLowerCase() === formattedCategory.toLowerCase()
+
+      // For debugging
+      if (categoryMatch) {
+        console.log("Matched poster:", poster.title, "with image:", poster.imageUrl?.substring(0, 50))
+      }
+
+      return categoryMatch
     })
+
+    console.log("Filtered posters count:", filtered.length)
+    return filtered
   }
 
   // Get featured posters
   const getFeaturedPosters = () => {
-    return posters.filter((poster) => poster.featured === true)
+    return posters.filter((poster) => {
+      if (!poster) return false
+      // Exclude problematic posters from featured
+      if (poster.title === "Sports Car Collection" || poster.id === "2") return false
+      if (poster.category === "Movies" && poster.imageUrl?.includes("unsplash.com")) return false
+      return poster.featured === true
+    })
   }
 
   // Get poster by ID
   const getPosterById = (id: string) => {
-    return posters.find((poster) => poster.id === id)
+    const poster = posters.find((poster) => poster.id === id)
+    // Return null if it's a problematic poster
+    if (
+      poster &&
+      (poster.title === "Sports Car Collection" ||
+        poster.id === "2" ||
+        (poster.category === "Movies" && poster.imageUrl?.includes("unsplash.com")))
+    ) {
+      return undefined
+    }
+    return poster
   }
 
   return (
     <PosterContext.Provider
       value={{
-        posters,
+        posters: posters.filter(
+          (p) =>
+            p.title !== "Sports Car Collection" &&
+            p.id !== "2" &&
+            !(p.category === "Movies" && p.imageUrl?.includes("unsplash.com")),
+        ), // Filter out problematic posters from context
         addPoster,
         updatePoster,
         deletePoster,
