@@ -30,18 +30,36 @@ export default function ProductActions({
   const { addItem } = useCart()
   const { toast } = useToast()
 
-  // Set correct pricing based on category
-  const basePrice = category === "Split Posters" ? 299 : 99
-  const a3Price = category === "Split Posters" ? 399 : 149
+  // Set correct pricing based on category and specific poster
+  let basePrice, a3Price
+
+  if (category === "Split Posters") {
+    basePrice = 299
+    a3Price = 399
+  } else if (category === "Collage") {
+    // Special pricing for Straw Hat Pirates Collage
+    basePrice = 699
+    a3Price = 999
+  } else {
+    // Default pricing for Cars, Movies, Anime
+    basePrice = 99
+    a3Price = 149
+  }
 
   // Calculate price based on size
   const currentPrice = size === "A3" ? a3Price : basePrice
 
   const handleAddToCart = () => {
+    // Ensure correct price for Straw Hat Pirates Collage
+    let finalPrice = currentPrice
+    if (title === "Straw Hat Pirates Wanted Posters Collage") {
+      finalPrice = size === "A3" ? 999 : 699
+    }
+
     addItem({
       id: `${id}-${size}`,
       title: `${title} (${size})`,
-      price: currentPrice,
+      price: finalPrice,
       category,
       imageUrl,
       size,
@@ -50,7 +68,7 @@ export default function ProductActions({
 
     toast({
       title: "Added to cart",
-      description: `${title} (${size}) has been added to your cart.`,
+      description: `${title} (${size}) has been added to your cart for ₹${finalPrice}.`,
     })
   }
 
@@ -59,10 +77,20 @@ export default function ProductActions({
       <div>
         <h1 className="text-3xl font-bold">{title}</h1>
         <p className="text-gray-500 mt-1">{category}</p>
-        {category === "Split Posters" && <p className="text-sm text-yellow-600 mt-1 font-medium">Premium Collection</p>}
+        {(category === "Split Posters" || category === "Collage") && (
+          <p className="text-sm text-yellow-600 mt-1 font-medium">Premium Collection</p>
+        )}
       </div>
 
-      <div className="text-2xl font-bold">₹{currentPrice}</div>
+      <div
+        className={`text-2xl font-bold ${category === "Collage" || title === "Straw Hat Pirates Wanted Posters Collage" ? "text-yellow-600" : ""}`}
+      >
+        {title === "Straw Hat Pirates Wanted Posters Collage" ? (
+          <>₹{size === "A3" ? 999 : 699}</>
+        ) : (
+          <>₹{currentPrice}</>
+        )}
+      </div>
 
       {description && <p className="text-gray-700">{description}</p>}
 
