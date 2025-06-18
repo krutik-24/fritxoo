@@ -37,6 +37,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         // Parse the cart and validate/fix any pricing issues
         const parsedCart = JSON.parse(savedCart)
         const validatedCart = parsedCart.map((item: CartItem) => {
+          // Special price validation for Straw Hat Pirates Collage
+          if (item.title.includes("Straw Hat Pirates") || item.category === "Collage") {
+            const correctPrice = item.size === "A3" ? 999 : 699
+            if (item.price !== correctPrice) {
+              return { ...item, price: correctPrice }
+            }
+          }
+
           // Ensure correct pricing based on category and size
           if (item.category === "Split Posters") {
             if (item.size === "A4" && item.price !== 299) {
@@ -44,7 +52,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             } else if (item.size === "A3" && item.price !== 399) {
               return { ...item, price: 399 }
             }
-          } else {
+          } else if (item.category !== "Collage") {
             if (item.size === "A4" && item.price !== 99) {
               return { ...item, price: 99 }
             } else if (item.size === "A3" && item.price !== 149) {
@@ -86,6 +94,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     let price = newItem.price
     if (newItem.category === "Split Posters") {
       price = newItem.size === "A3" ? 399 : 299
+    } else if (newItem.category === "Collage" || newItem.title.includes("Straw Hat Pirates")) {
+      // Special override for Straw Hat Pirates Collage
+      price = newItem.size === "A3" ? 999 : 699
     } else {
       price = newItem.size === "A3" ? 149 : 99
     }

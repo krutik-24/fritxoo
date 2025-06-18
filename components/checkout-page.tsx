@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useCart } from "@/context/cart-context"
@@ -12,7 +13,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ArrowLeft, Loader2, CreditCard, Smartphone, AlertCircle, ImageIcon } from "lucide-react"
+import { ArrowLeft, Loader2, CreditCard, Smartphone, AlertCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import Link from "next/link"
 import Script from "next/script"
@@ -70,82 +71,6 @@ const INDIAN_STATES = [
   "Lakshadweep",
   "Puducherry",
 ]
-
-// Enhanced Image Component for Cart Items
-const CartItemImage = ({ item }: { item: any }) => {
-  const [imageLoaded, setImageLoaded] = useState(false)
-  const [imageError, setImageError] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    setIsLoading(true)
-    setImageError(false)
-    setImageLoaded(false)
-  }, [item.id])
-
-  const handleImageLoad = () => {
-    setImageLoaded(true)
-    setIsLoading(false)
-    setImageError(false)
-  }
-
-  const handleImageError = () => {
-    setImageError(true)
-    setIsLoading(false)
-    setImageLoaded(false)
-    console.warn(`Failed to load image for item: ${item.title}`)
-  }
-
-  // Determine image source
-  const getImageSrc = () => {
-    if (item.imageData) {
-      return `data:image/png;base64,${item.imageData}`
-    }
-    if (item.imageUrl) {
-      return item.imageUrl
-    }
-    return null
-  }
-
-  const imageSrc = getImageSrc()
-
-  return (
-    <div className="w-16 h-20 bg-gray-100 rounded-md relative flex-shrink-0 overflow-hidden">
-      {imageSrc ? (
-        <>
-          {isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-200 animate-pulse">
-              <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
-            </div>
-          )}
-          <Image
-            src={imageSrc || "/placeholder.svg"}
-            alt={item.title || "Product image"}
-            fill
-            className={`object-cover rounded-md transition-opacity duration-300 ${
-              imageLoaded ? "opacity-100" : "opacity-0"
-            }`}
-            onLoad={handleImageLoad}
-            onError={handleImageError}
-            priority={true}
-            crossOrigin="anonymous"
-          />
-          {imageError && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-gray-600">
-              <ImageIcon className="h-4 w-4 mb-1" />
-              <span className="text-xs font-medium">{item.title?.slice(0, 8) || "Item"}</span>
-            </div>
-          )}
-        </>
-      ) : (
-        <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-gray-600">
-          <ImageIcon className="h-4 w-4 mb-1" />
-          <span className="text-xs font-medium text-center leading-tight">{item.title?.slice(0, 8) || "No Image"}</span>
-        </div>
-      )}
-    </div>
-  )
-}
 
 export default function CheckoutPage() {
   const { items, subtotal, clearCart } = useCart()
@@ -695,7 +620,55 @@ export default function CheckoutPage() {
                   <div className="space-y-4 mb-6">
                     {items.map((item) => (
                       <div key={item.id} className="flex gap-3">
-                        <CartItemImage item={item} />
+                        <div className="w-16 h-20 bg-gray-100 rounded-md relative flex-shrink-0 overflow-hidden">
+                          {item.imageData ? (
+                            <Image
+                              src={`data:image/png;base64,${item.imageData}`}
+                              alt={item.title}
+                              fill
+                              className="object-cover rounded-md"
+                            />
+                          ) : item.imageUrl ? (
+                            <Image
+                              src={item.imageUrl || "/placeholder.svg"}
+                              alt={item.title}
+                              fill
+                              className="object-cover rounded-md"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement
+                                target.src = `/placeholder.svg?height=80&width=64&text=${encodeURIComponent(item.title.split(" ").slice(0, 2).join(" "))}`
+                              }}
+                            />
+                          ) : (
+                            <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 rounded-md border-2 border-dashed border-gray-300">
+                              <div className="w-6 h-6 mb-1 opacity-40">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path
+                                    d="M21 19V5C21 3.9 20.1 3 19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 19 20.1 21 19ZM8.5 13.5L11 16.51L14.5 12L19 18H5L8.5 13.5Z"
+                                    fill="currentColor"
+                                  />
+                                </svg>
+                              </div>
+                              <span className="text-xs text-gray-400 font-medium text-center px-1 leading-tight">
+                                {item.title.split(" ").slice(0, 2).join(" ")}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Category badge for visual identification */}
+                          <div className="absolute top-1 right-1 bg-black bg-opacity-75 text-white text-xs px-1 py-0.5 rounded text-center leading-none">
+                            {item.category === "Split Posters"
+                              ? "Split"
+                              : item.category === "Collage"
+                                ? "Collage"
+                                : item.category.charAt(0)}
+                          </div>
+
+                          {/* Size indicator */}
+                          <div className="absolute bottom-1 left-1 bg-white bg-opacity-90 text-gray-800 text-xs px-1 py-0.5 rounded font-medium">
+                            {item.size || "A4"}
+                          </div>
+                        </div>
                         <div className="flex-grow">
                           <h3 className="font-medium text-sm">{item.title}</h3>
                           <p className="text-xs text-gray-500">
