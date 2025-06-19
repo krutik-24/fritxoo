@@ -1,16 +1,65 @@
 "use client"
 
-import { useState } from "react"
+import type React from "react"
+
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { Search, User, ShoppingBag, ChevronDown, Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Logo from "./logo"
 import { useCart } from "@/context/cart-context"
+import { usePosters } from "@/context/poster-context"
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const { itemCount } = useCart()
+
+  // Add these new state variables and logic:
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchResults, setSearchResults] = useState<any[]>([])
+  const [showResults, setShowResults] = useState(false)
+  const { posters } = usePosters()
+  const searchRef = useRef<HTMLDivElement>(null)
+
+  // Search functionality
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setSearchResults([])
+      setShowResults(false)
+      return
+    }
+
+    const filteredPosters = posters.filter(
+      (poster) =>
+        poster.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        poster.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        poster.description.toLowerCase().includes(searchQuery.toLowerCase()),
+    )
+
+    setSearchResults(filteredPosters.slice(0, 6)) // Limit to 6 results
+    setShowResults(true)
+  }, [searchQuery, posters])
+
+  // Close search results when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowResults(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim() && searchResults.length > 0) {
+      // Navigate to first result or search results page
+      window.location.href = `/products/${searchResults[0].slug}`
+    }
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white border-b shadow-sm">
@@ -54,9 +103,54 @@ export default function Navbar() {
         </nav>
 
         <div className="flex items-center space-x-4">
-          <div className="relative hidden md:block w-64">
+          <div className="relative hidden md:block w-64" ref={searchRef}>
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
-            <Input placeholder="Search" className="pl-8 h-9 w-full rounded-md border border-gray-300" />
+            <form onSubmit={handleSearchSubmit}>
+              <Input
+                placeholder="Search posters..."
+                className="pl-8 h-9 w-full rounded-md border border-gray-300"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => searchQuery && setShowResults(true)}
+              />
+            </form>
+
+            {/* Search Results Dropdown */}
+            {showResults && searchResults.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-96 overflow-y-auto">
+                {searchResults.map((poster) => (
+                  <Link
+                    key={poster.id}
+                    href={`/products/${poster.slug}`}
+                    className="flex items-center p-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                    onClick={() => {
+                      setShowResults(false)
+                      setSearchQuery("")
+                    }}
+                  >
+                    <div className="w-12 h-12 mr-3 flex-shrink-0">
+                      <img
+                        src={poster.imageUrl || "/placeholder.svg"}
+                        alt={poster.title}
+                        className="w-full h-full object-cover rounded"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement
+                          target.src = `/placeholder.svg?height=48&width=48&text=${encodeURIComponent(poster.title.slice(0, 2))}`
+                        }}
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">{poster.title}</p>
+                      <p className="text-xs text-gray-500">{poster.category}</p>
+                      <p className="text-xs font-semibold text-green-600">₹{poster.price}</p>
+                    </div>
+                  </Link>
+                ))}
+                {searchQuery && searchResults.length === 0 && (
+                  <div className="p-3 text-center text-gray-500 text-sm">No posters found for "{searchQuery}"</div>
+                )}
+              </div>
+            )}
           </div>
           <Button variant="ghost" size="icon" className="text-gray-700">
             <User className="h-5 w-5" />
@@ -81,7 +175,12 @@ export default function Navbar() {
         <div className="md:hidden border-t py-4 px-6 bg-white">
           <div className="relative mb-4">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
-            <Input placeholder="Search" className="pl-8 h-9 w-full rounded-md border border-gray-300" />
+            <Input
+              placeholder="Search posters..."
+              className="pl-8 h-9 w-full rounded-md border border-gray-300"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
           <nav className="flex flex-col space-y-4">
             <Link href="/split-posters" className="text-sm font-medium text-gray-700 hover:text-black">
