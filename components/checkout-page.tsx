@@ -122,6 +122,15 @@ export default function CheckoutPage() {
     }
   }, [])
 
+  // Auto-populate order notes with cart items
+  useEffect(() => {
+    const cartItemNames = items.map((item) => `${item.title} (${item.size || "A4"} - Qty: ${item.quantity})`).join(", ")
+    setFormData((prev) => ({
+      ...prev,
+      notes: cartItemNames,
+    }))
+  }, [items])
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
@@ -522,17 +531,24 @@ export default function CheckoutPage() {
 
                     {/* Order Notes */}
                     <div>
-                      <h3 className="text-lg font-medium mb-4">Additional Information</h3>
+                      <h3 className="text-lg font-medium mb-4">Order Details</h3>
                       <div className="space-y-2">
-                        <Label htmlFor="notes">Order notes (optional)</Label>
+                        <Label htmlFor="notes">
+                          Order items (auto-populated) - Add special instructions below if needed
+                        </Label>
                         <Textarea
                           id="notes"
                           name="notes"
                           value={formData.notes}
                           onChange={handleInputChange}
-                          placeholder="Special instructions for delivery or any other notes"
-                          rows={3}
+                          placeholder="Order items will be automatically listed here. Add any special delivery instructions below..."
+                          rows={4}
+                          className="text-sm"
                         />
+                        <p className="text-xs text-gray-500">
+                          Your cart items are automatically listed above. You can add special delivery instructions or
+                          modify as needed.
+                        </p>
                       </div>
                     </div>
 
